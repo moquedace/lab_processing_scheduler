@@ -2,3 +2,17 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# Local backups
+docs/index_backup_*.html
+
+# Local database files
+data/database/*.xlsx
+data/database/lab_processing_scheduler_database.xlsx
+
+# Secrets and credentials
+secrets/
+shiny_app/secrets/
+shiny_app/.Renviron
+.Renviron
+*.json
