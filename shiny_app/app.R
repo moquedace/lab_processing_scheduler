@@ -2291,30 +2291,8 @@ ui <- bslib::page_navbar(
   ),
   
   bslib::nav_panel(
-    title = "Visão geral",
-    hero_ui(),
-    tags$div(
-      class = "metric-grid",
-      metric_card_ui("Usuários ativos", "n_users"),
-      metric_card_ui("Computadores ativos", "n_computers"),
-      metric_card_ui("Reservas registradas", "n_reservations"),
-      metric_card_ui("Regras de prioridade", "n_rules")
-    ),
-    tags$div(
-      class = "section-card",
-      tags$h2("Resumo do sistema"),
-      uiOutput("system_summary")
-    ),
-    tags$div(
-      class = "section-card",
-      tags$h2("Infraestrutura ativa"),
-      uiOutput("computer_cards")
-    ),
-    footer_ui()
-  ),
-  
-  bslib::nav_panel(
     title = "Painel público",
+    hero_ui(),
     tags$div(
       class = "section-card",
       tags$h2("Status atual dos computadores"),
@@ -2331,7 +2309,8 @@ ui <- bslib::page_navbar(
       ),
       DT::DTOutput("public_upcoming_table")
     ),
-    uiOutput("public_pending_block")
+    uiOutput("public_pending_block"),
+    footer_ui()
   ),
   
   bslib::nav_panel(
@@ -2489,61 +2468,6 @@ ui <- bslib::page_navbar(
       ),
       uiOutput("admin_panel")
     )
-  ),
-  
-  bslib::nav_panel(
-    title = "Usuários",
-    tags$div(
-      class = "section-card",
-      tags$h2("Usuários cadastrados"),
-      DT::DTOutput("users_table")
-    )
-  ),
-  
-  bslib::nav_panel(
-    title = "Computadores",
-    tags$div(
-      class = "section-card",
-      tags$h2("Computadores cadastrados"),
-      DT::DTOutput("computers_table")
-    )
-  ),
-  
-  bslib::nav_panel(
-    title = "Listas",
-    tags$div(
-      class = "section-card",
-      tags$h2("Listas do sistema"),
-      DT::DTOutput("lists_table")
-    )
-  ),
-  
-  bslib::nav_panel(
-    title = "Regras",
-    tags$div(
-      class = "section-card",
-      tags$h2("Regras de prioridade"),
-      DT::DTOutput("priority_rules_table")
-    )
-  ),
-  
-  bslib::nav_panel(
-    title = "Configurações",
-    tags$div(
-      class = "section-card",
-      tags$h2("Configurações ativas"),
-      DT::DTOutput("settings_table")
-    )
-  ),
-  
-  bslib::nav_panel(
-    title = "Auditoria",
-    tags$div(
-      class = "section-card",
-      tags$h2("Auditoria"),
-      tags$p("Registro das ações administrativas gravadas na aba audit_log."),
-      DT::DTOutput("audit_table")
-    )
   )
 )
 
@@ -2674,9 +2598,7 @@ server <- function(input, output, session) {
       tags$span("Categoria"),
       tags$strong(user_tbl$user_level_label),
       tags$span("Orientador"),
-      tags$strong(user_tbl$advisor),
-      tags$span("E-mail cadastrado"),
-      tags$strong(user_tbl$email)
+      tags$strong(user_tbl$advisor)
     )
   })
   

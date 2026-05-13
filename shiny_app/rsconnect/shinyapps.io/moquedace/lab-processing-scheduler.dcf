@@ -5,6 +5,6 @@ account: moquedace
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 17349898
-bundleId: 11986554
+bundleId: 11986794
 url: https://moquedace.shinyapps.io/lab-processing-scheduler/
 version: 1
