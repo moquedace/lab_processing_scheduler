@@ -3002,7 +3002,15 @@ server <- function(input, output, session) {
     tags$div(
       class = "form-layout",
       tags$div(
-        tags$h4(class = "form-section-title", "Reserva"),
+        tags$div(
+          style = "display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 16px;",
+          tags$h4(class = "form-section-title", "Reserva"),
+          actionButton(
+            inputId = "admin_logout",
+            label = "Sair da administração",
+            class = "btn-outline-secondary"
+          )
+        ),
         selectInput(
           inputId = "admin_reservation_id",
           label = "Selecione uma reserva",
@@ -3074,6 +3082,22 @@ server <- function(input, output, session) {
         duration = 6
       )
     }
+  })
+  
+  observeEvent(input$admin_logout, {
+    admin_authenticated(FALSE)
+    
+    updateTextInput(
+      session,
+      inputId = "admin_password",
+      value = ""
+    )
+    
+    showNotification(
+      "Sessão administrativa encerrada.",
+      type = "message",
+      duration = 5
+    )
   })
   
   output$admin_selected_reservation <- renderUI({
