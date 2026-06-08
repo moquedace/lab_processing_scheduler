@@ -184,7 +184,8 @@ ui <- bslib::page_navbar(
       tags$p(
         "Área para aprovar, rejeitar ou cancelar reservas. O acesso exige senha administrativa."
       ),
-      uiOutput("admin_panel")
+      uiOutput("admin_panel"),
+      uiOutput("admin_sub_tabs")
     )
   )
 )

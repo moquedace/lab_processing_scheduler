@@ -544,96 +544,95 @@ server <- function(input, output, session) {
       )
     }
 
-    bslib::navset_tab(
-      bslib::nav_panel(
-        title = "Gerenciar",
+    tags$div(
+      class = "form-layout",
+      tags$div(
         tags$div(
-          class = "form-layout",
-          tags$div(
-            tags$div(
-              style = "display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 16px;",
-              tags$h4(class = "form-section-title", "Reserva"),
-              actionButton(
-                inputId = "admin_logout",
-                label = "Sair da administração",
-                class = "btn-outline-secondary"
-              )
-            ),
-            selectInput(
-              inputId = "admin_reservation_id",
-              label = "Selecione uma reserva",
-              choices = reservation_choices
-            ),
-            textAreaInput(
-              inputId = "admin_notes",
-              label = "Observação administrativa",
-              placeholder = "Informe o motivo da decisão ou alguma orientação para o usuário.",
-              rows = 3
-            ),
-            selectInput(
-              inputId = "admin_finish_reason",
-              label = "Motivo da finalização",
-              choices = get_choices(lists(), "finish_reason"),
-              selected = "normal"
-            ),
-            fluidRow(
-              column(
-                width = 4,
-                actionButton(inputId = "admin_approve", label = "Aprovar", class = "btn-success")
-              ),
-              column(
-                width = 4,
-                actionButton(inputId = "admin_reject", label = "Rejeitar", class = "btn-warning")
-              ),
-              column(
-                width = 4,
-                actionButton(inputId = "admin_cancel", label = "Cancelar", class = "btn-danger")
-              )
-            ),
-            tags$div(
-              style = "margin-top: 8px;",
-              fluidRow(
-                column(
-                  width = 6,
-                  actionButton(inputId = "admin_start_use", label = "Iniciar uso", class = "btn-info")
-                ),
-                column(
-                  width = 6,
-                  actionButton(inputId = "admin_finish_use", label = "Finalizar uso", class = "btn-secondary")
-                )
-              )
-            )
+          style = "display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 16px;",
+          tags$h4(class = "form-section-title", "Reserva"),
+          actionButton(
+            inputId = "admin_logout",
+            label = "Sair da administração",
+            class = "btn-outline-secondary"
+          )
+        ),
+        selectInput(
+          inputId = "admin_reservation_id",
+          label = "Selecione uma reserva",
+          choices = reservation_choices
+        ),
+        textAreaInput(
+          inputId = "admin_notes",
+          label = "Observação administrativa",
+          placeholder = "Informe o motivo da decisão ou alguma orientação para o usuário.",
+          rows = 3
+        ),
+        selectInput(
+          inputId = "admin_finish_reason",
+          label = "Motivo da finalização",
+          choices = get_choices(lists(), "finish_reason"),
+          selected = "normal"
+        ),
+        fluidRow(
+          column(
+            width = 4,
+            actionButton(inputId = "admin_approve", label = "Aprovar", class = "btn-success")
           ),
-          tags$div(
-            uiOutput("admin_selected_reservation")
+          column(
+            width = 4,
+            actionButton(inputId = "admin_reject", label = "Rejeitar", class = "btn-warning")
+          ),
+          column(
+            width = 4,
+            actionButton(inputId = "admin_cancel", label = "Cancelar", class = "btn-danger")
+          )
+        ),
+        tags$div(
+          style = "margin-top: 8px;",
+          fluidRow(
+            column(
+              width = 6,
+              actionButton(inputId = "admin_start_use", label = "Iniciar uso", class = "btn-info")
+            ),
+            column(
+              width = 6,
+              actionButton(inputId = "admin_finish_use", label = "Finalizar uso", class = "btn-secondary")
+            )
           )
         )
       ),
-      bslib::nav_panel(
-        title = "Aprovadas e em uso",
-        tags$div(
-          style = "margin-top: 16px;",
-          DT::DTOutput("admin_approved_table")
-        )
-      ),
-      bslib::nav_panel(
-        title = "Histórico",
-        tags$div(
-          style = "margin-top: 16px;",
-          DT::DTOutput("admin_history_table")
-        )
-      ),
-      bslib::nav_panel(
-        title = "Auditoria",
-        tags$div(
-          style = "margin-top: 16px;",
-          DT::DTOutput("admin_audit_table")
-        )
+      tags$div(
+        uiOutput("admin_selected_reservation")
       )
     )
   })
   outputOptions(output, "admin_panel", suspendWhenHidden = FALSE)
-  
+
+  output$admin_sub_tabs <- renderUI({
+    if (!admin_authenticated()) {
+      return(NULL)
+    }
+
+    tags$div(
+      style = "margin-top: 24px;",
+      tabsetPanel(
+        tabPanel(
+          "Aprovadas e em uso",
+          tags$div(style = "margin-top: 12px;", DT::DTOutput("admin_approved_table"))
+        ),
+        tabPanel(
+          "Histórico",
+          tags$div(style = "margin-top: 12px;", DT::DTOutput("admin_history_table"))
+        ),
+        tabPanel(
+          "Auditoria",
+          tags$div(style = "margin-top: 12px;", DT::DTOutput("admin_audit_table"))
+        )
+      )
+    )
+  })
+  outputOptions(output, "admin_sub_tabs", suspendWhenHidden = FALSE)
+
   observeEvent(input$admin_login, {
     expected_password <- Sys.getenv("LAB_SCHEDULER_ADMIN_PASSWORD")
     
