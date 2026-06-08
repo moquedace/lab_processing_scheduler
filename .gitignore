@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+.r-lib/
 
 # Local backups
 docs/index_backup_*.html
