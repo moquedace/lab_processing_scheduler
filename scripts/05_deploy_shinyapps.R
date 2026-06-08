@@ -75,9 +75,16 @@ message("\nTemporary .Renviron created at:")
 message(renviron_file)
 message("\nDo not commit this file.")
 
+module_files <- list.files(
+  file.path(app_dir, "R"),
+  pattern = "\\.R$",
+  full.names = FALSE
+)
+
 app_files <- c(
   "app.R",
   ".Renviron",
+  paste0("R/", module_files),
   "www/img/logo_geocis.png",
   "www/img/logo_solos.png",
   "www/img/logo_esalq.png",
