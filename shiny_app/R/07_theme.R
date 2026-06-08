@@ -18,6 +18,7 @@ app_css <- "
   --primary-soft: #e8f2fb;
   --green: #0f7a58;
   --green-soft: #e8f7ef;
+  --green-dark: #0c6347;
   --orange: #a55b12;
   --orange-soft: #fff4e6;
   --border: #e1e8f0;
@@ -717,6 +718,23 @@ table.dataTable tbody td {
   color: var(--text-muted) !important;
   background: var(--surface-soft) !important;
   border-color: var(--border) !important;
+}
+
+/* Botões de ação verdes (Aprovar, Enviar) no verde da página */
+.btn-success {
+  --bs-btn-bg: var(--green);
+  --bs-btn-border-color: var(--green);
+  --bs-btn-hover-bg: var(--green-dark);
+  --bs-btn-hover-border-color: var(--green-dark);
+  --bs-btn-active-bg: var(--green-dark);
+  --bs-btn-active-border-color: var(--green-dark);
+  --bs-btn-disabled-bg: var(--green);
+  --bs-btn-disabled-border-color: var(--green);
+}
+
+.btn-success:focus,
+.btn-success:focus-visible {
+  box-shadow: 0 0 0 0.25rem rgba(15, 122, 88, 0.35);
 }
 
 .app-footer {
