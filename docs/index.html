@@ -85,7 +85,7 @@
     .spec-label {
       color: var(--primary);
       font-size: 0.78rem;
-      font-weight: 850;
+      font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
@@ -103,7 +103,7 @@
       gap: 20px;
       color: var(--muted);
       font-size: 0.92rem;
-      font-weight: 750;
+      font-weight: 700;
     }
 
     .nav a:hover {
@@ -118,7 +118,7 @@
       padding: 0 18px;
       border: 1px solid transparent;
       border-radius: var(--radius);
-      font-weight: 850;
+      font-weight: 800;
       transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
     }
 
@@ -163,7 +163,7 @@
     .hero-copy h1 {
       max-width: 840px;
       margin: 14px 0 22px;
-      font-size: 5.2rem;
+      font-size: clamp(2.7rem, 6vw, 5.2rem);
       line-height: 0.96;
       letter-spacing: 0;
       font-weight: 900;
@@ -371,7 +371,7 @@
 
     .access-list span {
       color: var(--muted);
-      font-weight: 750;
+      font-weight: 700;
     }
 
     .note-panel {
@@ -411,7 +411,7 @@
       color: var(--green);
       background: var(--green-soft);
       font-size: 0.78rem;
-      font-weight: 850;
+      font-weight: 800;
       white-space: nowrap;
     }
 
@@ -630,10 +630,6 @@
         padding: 48px 0;
       }
 
-      .hero-copy h1 {
-        font-size: 2.7rem;
-      }
-
       .section-heading h2 {
         font-size: 2rem;
       }
@@ -700,23 +696,19 @@
           </div>
         </div>
 
-        <aside class="hero-panel" aria-label="Resumo do sistema">
+        <aside class="hero-panel" aria-label="Estações de processamento">
           <div class="system-status">
-            <span class="mini-label">Ambiente operacional</span>
-            <strong>Online</strong>
+            <span class="mini-label">Estações de processamento</span>
+            <strong>2</strong>
           </div>
           <div class="status-grid">
             <div>
-              <span>Entrada institucional</span>
-              <strong>GitHub Pages</strong>
+              <span>Super 1</span>
+              <strong>Uso geral</strong>
             </div>
             <div>
-              <span>Sistema funcional</span>
-              <strong>Shiny</strong>
-            </div>
-            <div>
-              <span>Banco online</span>
-              <strong>Google Sheets</strong>
+              <span>Super 2</span>
+              <strong>Alta demanda</strong>
             </div>
           </div>
         </aside>

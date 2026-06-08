@@ -68,6 +68,7 @@ escape_html <- function(x) {
 computers <- list(
   list(
     name = "Super 1",
+    hero_tag = "Uso geral",
     title = "Processamento científico geral.",
     badge = "Reservável",
     badge_class = "pill",
@@ -85,6 +86,7 @@ computers <- list(
   ),
   list(
     name = "Super 2",
+    hero_tag = "Alta demanda",
     title = "Processamento intensivo e paralelo.",
     badge = "Prioritário",
     badge_class = "pill priority",
@@ -160,6 +162,21 @@ machines_heading <- paste0(
 machine_cards_html <- paste(
   vapply(computers, render_computer_card, character(1)),
   collapse = "\n\n"
+)
+
+# Linhas do painel do hero, geradas a partir das máquinas cadastradas.
+render_hero_machine_row <- function(computer) {
+  paste0(
+    '            <div>
+              <span>', escape_html(computer$name), '</span>
+              <strong>', escape_html(computer$hero_tag), '</strong>
+            </div>'
+  )
+}
+
+hero_machine_rows <- paste(
+  vapply(computers, render_hero_machine_row, character(1)),
+  collapse = "\n"
 )
 
 html_content <- paste0(
@@ -250,7 +267,7 @@ html_content <- paste0(
     .spec-label {
       color: var(--primary);
       font-size: 0.78rem;
-      font-weight: 850;
+      font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
@@ -268,7 +285,7 @@ html_content <- paste0(
       gap: 20px;
       color: var(--muted);
       font-size: 0.92rem;
-      font-weight: 750;
+      font-weight: 700;
     }
 
     .nav a:hover {
@@ -283,7 +300,7 @@ html_content <- paste0(
       padding: 0 18px;
       border: 1px solid transparent;
       border-radius: var(--radius);
-      font-weight: 850;
+      font-weight: 800;
       transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
     }
 
@@ -328,7 +345,7 @@ html_content <- paste0(
     .hero-copy h1 {
       max-width: 840px;
       margin: 14px 0 22px;
-      font-size: 5.2rem;
+      font-size: clamp(2.7rem, 6vw, 5.2rem);
       line-height: 0.96;
       letter-spacing: 0;
       font-weight: 900;
@@ -536,7 +553,7 @@ html_content <- paste0(
 
     .access-list span {
       color: var(--muted);
-      font-weight: 750;
+      font-weight: 700;
     }
 
     .note-panel {
@@ -576,7 +593,7 @@ html_content <- paste0(
       color: var(--green);
       background: var(--green-soft);
       font-size: 0.78rem;
-      font-weight: 850;
+      font-weight: 800;
       white-space: nowrap;
     }
 
@@ -795,10 +812,6 @@ html_content <- paste0(
         padding: 48px 0;
       }
 
-      .hero-copy h1 {
-        font-size: 2.7rem;
-      }
-
       .section-heading h2 {
         font-size: 2rem;
       }
@@ -865,24 +878,13 @@ html_content <- paste0(
           </div>
         </div>
 
-        <aside class="hero-panel" aria-label="Resumo do sistema">
+        <aside class="hero-panel" aria-label="Estações de processamento">
           <div class="system-status">
-            <span class="mini-label">Ambiente operacional</span>
-            <strong>Online</strong>
+            <span class="mini-label">Estações de processamento</span>
+            <strong>', length(computers), '</strong>
           </div>
           <div class="status-grid">
-            <div>
-              <span>Entrada institucional</span>
-              <strong>GitHub Pages</strong>
-            </div>
-            <div>
-              <span>Sistema funcional</span>
-              <strong>Shiny</strong>
-            </div>
-            <div>
-              <span>Banco online</span>
-              <strong>Google Sheets</strong>
-            </div>
+', hero_machine_rows, '
           </div>
         </aside>
       </div>
