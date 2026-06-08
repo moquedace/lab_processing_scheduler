@@ -405,10 +405,15 @@ update_reservation_status <- function(
   }
   
   old_status <- reservations_tbl$status[row_id]
-  
+
   reservations_tbl$status[row_id] <- new_status
   reservations_tbl$updated_at[row_id] <- now_text
-  reservations_tbl$admin_notes[row_id] <- admin_notes_value
+
+  # Só sobrescreve a observação quando uma nova é informada, para não apagar
+  # notas anteriores ao iniciar ou finalizar o uso sem digitar nada.
+  if (!is.na(admin_notes_value)) {
+    reservations_tbl$admin_notes[row_id] <- admin_notes_value
+  }
   
   if (new_status == "approved") {
     reservations_tbl$approved_by[row_id] <- admin_user

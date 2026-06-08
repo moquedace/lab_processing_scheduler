@@ -16,23 +16,39 @@ read_sheet_clean <- function(sheet_name) {
     )
 }
 
-read_database <- function() {
-  sheet_names <- c(
-    "users",
-    "computers",
-    "reservations",
-    "lists",
-    "priority_rules",
-    "usage_log",
-    "audit_log",
-    "settings"
-  )
-  
-  purrr::map(
-    sheet_names,
-    read_sheet_clean
-  ) %>%
+# Abas que mudam raramente (cadastros e configuração).
+# Relidas apenas quando o app força recarga (reload_key), não no timer.
+static_sheet_names <- c(
+  "users",
+  "computers",
+  "lists",
+  "priority_rules",
+  "settings"
+)
+
+# Abas que mudam com frequência (operação diária).
+# Relidas pelo timer de atualização automática.
+dynamic_sheet_names <- c(
+  "reservations",
+  "usage_log",
+  "audit_log"
+)
+
+read_sheets <- function(sheet_names) {
+  purrr::map(sheet_names, read_sheet_clean) %>%
     stats::setNames(sheet_names)
+}
+
+read_static_tables <- function() {
+  read_sheets(static_sheet_names)
+}
+
+read_dynamic_tables <- function() {
+  read_sheets(dynamic_sheet_names)
+}
+
+read_database <- function() {
+  c(read_static_tables(), read_dynamic_tables())
 }
 
 write_sheet_to_workbook <- function(database_file, sheet_name, data_tbl) {

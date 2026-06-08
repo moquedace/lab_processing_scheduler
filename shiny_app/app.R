@@ -135,15 +135,33 @@ server <- function(input, output, session) {
   admin_authenticated <- reactiveVal(FALSE)
   auto_refresh <- reactiveTimer(60000, session = session)
   
-  database <- reactive({
-    auto_refresh()
+  # Cadastros e configuração: relidos apenas em recarga explícita (envio,
+  # ação administrativa). Não dependem do timer, poupando chamadas à API.
+  static_tables <- reactive({
     reload_key()
-    
+
     validate(
       need(sheet_url != "", "Google Sheets URL not configured.")
     )
-    
-    read_database()
+
+    read_static_tables()
+  })
+
+  # Reservas, uso e auditoria: relidos no timer e em cada recarga explícita.
+  dynamic_tables <- reactive({
+    auto_refresh()
+    reload_key()
+
+    validate(
+      need(sheet_url != "", "Google Sheets URL not configured.")
+    )
+
+    read_dynamic_tables()
+  })
+
+  # Interface única: database()$users, database()$reservations, etc.
+  database <- reactive({
+    c(static_tables(), dynamic_tables())
   })
   
   users <- reactive({
@@ -265,14 +283,10 @@ server <- function(input, output, session) {
   register_public_server_outputs(
     output = output,
     database = database,
-    users = users,
     computers = computers,
     reservations = reservations,
-    audit_log = audit_log,
-    priority_rules = priority_rules,
     settings = settings,
-    lists = lists,
-    sheet_url = sheet_url
+    lists = lists
   )
   
   booking_preview_data <- eventReactive(input$generate_booking_preview, {
@@ -1135,97 +1149,23 @@ server <- function(input, output, session) {
   outputOptions(output, "admin_audit_table", suspendWhenHidden = FALSE)
 
   output$reservations_table <- DT::renderDT({
+    # Visão pública: oculta reservas rejeitadas e canceladas.
+    public_reservations <- reservations() %>%
+      dplyr::filter(!status %in% c("rejected", "cancelled"))
+
     DT::datatable(
-      format_reservations_public(reservations(), database()$users, lists()),
+      format_reservations_public(public_reservations, database()$users, lists()),
       rownames = FALSE,
       filter = "top",
       options = list(
         pageLength = 10,
         scrollX = TRUE,
-        order = list(list(4, "desc")),
+        order = list(list(2, "desc")),
         language = dt_language_pt
       )
     )
   })
   outputOptions(output, "reservations_table", suspendWhenHidden = FALSE)
-  
-  output$audit_table <- DT::renderDT({
-    DT::datatable(
-      format_audit_public(audit_log(), database()$users),
-      rownames = FALSE,
-      filter = "top",
-      options = list(
-        pageLength = 10,
-        scrollX = TRUE,
-        order = list(list(1, "desc")),
-        language = dt_language_pt
-      )
-    )
-  })
-  
-  output$users_table <- DT::renderDT({
-    DT::datatable(
-      format_users_public(users()),
-      rownames = FALSE,
-      filter = "top",
-      options = list(
-        pageLength = 10,
-        scrollX = TRUE,
-        language = dt_language_pt
-      )
-    )
-  })
-  
-  output$computers_table <- DT::renderDT({
-    DT::datatable(
-      format_computers_public(computers()),
-      rownames = FALSE,
-      options = list(
-        pageLength = 5,
-        scrollX = TRUE,
-        language = dt_language_pt
-      )
-    )
-  })
-  
-  output$lists_table <- DT::renderDT({
-    DT::datatable(
-      lists(),
-      rownames = FALSE,
-      filter = "top",
-      options = list(
-        pageLength = 15,
-        scrollX = TRUE,
-        language = dt_language_pt
-      )
-    )
-  })
-  
-  output$priority_rules_table <- DT::renderDT({
-    DT::datatable(
-      priority_rules(),
-      rownames = FALSE,
-      filter = "top",
-      options = list(
-        pageLength = 15,
-        scrollX = TRUE,
-        language = dt_language_pt
-      )
-    )
-  })
-  
-  output$settings_table <- DT::renderDT({
-    DT::datatable(
-      settings(),
-      rownames = FALSE,
-      filter = "top",
-      options = list(
-        pageLength = 15,
-        scrollX = TRUE,
-        language = dt_language_pt
-      )
-    )
-  })
 }
 
 shinyApp(ui = ui, server = server)

@@ -141,6 +141,22 @@ computer_names_text <- paste(
   collapse = " e "
 )
 
+# Cabeçalho da seção de infraestrutura gerado a partir da contagem de máquinas,
+# para acompanhar automaticamente a inclusão de novas estações (ex.: Super 3).
+count_word_fem <- function(n) {
+  words <- c("Uma", "Duas", "Três", "Quatro", "Cinco", "Seis")
+  if (n >= 1 && n <= length(words)) words[n] else as.character(n)
+}
+
+estacao_word <- if (length(computers) == 1) "estação" else "estações"
+
+machines_heading <- paste0(
+  count_word_fem(length(computers)),
+  " ",
+  estacao_word,
+  " para diferentes perfis de processamento."
+)
+
 machine_cards_html <- paste(
   vapply(computers, render_computer_card, character(1)),
   collapse = "\n\n"
@@ -938,7 +954,7 @@ html_content <- paste0(
         <div class="section-heading">
           <div>
             <span class="section-label">Infraestrutura</span>
-            <h2>Duas estações para diferentes perfis de processamento.</h2>
+            <h2>', machines_heading, '</h2>
           </div>
           <p>
             A escolha do computador deve considerar volume de dados, necessidade de memória,

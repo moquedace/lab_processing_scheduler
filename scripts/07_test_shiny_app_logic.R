@@ -826,6 +826,43 @@ record_test("admin status transitions stamp the correct actor columns", {
   expect_equal(cancelled_row$admin_notes[1], "cancel note", "Cancel note should be preserved.")
 })
 
+record_test("status update preserves existing admin notes when none is provided", {
+  base_tbl <- tibble::tibble(
+    reservation_id = "res_keep_note",
+    created_at = "2026-06-10 08:00:00",
+    updated_at = "2026-06-10 08:00:00",
+    user_id = "user_1",
+    status = "approved",
+    approved_by = "admin_prev",
+    approved_at = "2026-06-10 09:00:00",
+    rejected_by = NA_character_,
+    rejected_at = NA_character_,
+    cancelled_by = NA_character_,
+    cancelled_at = NA_character_,
+    admin_notes = "nota anterior importante"
+  )
+
+  started <- test_env$update_reservation_status(
+    reservations_tbl = base_tbl,
+    reservation_id_value = "res_keep_note",
+    new_status = "in_use",
+    admin_user = "admin_test",
+    admin_notes_value = NA_character_,
+    timezone_value = timezone_value
+  )
+
+  expect_equal(
+    started$reservations_tbl$admin_notes[1],
+    "nota anterior importante",
+    "Existing admin note should be preserved when no new note is provided."
+  )
+  expect_equal(
+    started$reservations_tbl$status[1],
+    "in_use",
+    "Status should still update to in_use."
+  )
+})
+
 record_test("usage row is created with start time and empty end fields", {
   usage_row <- test_env$create_usage_row(
     reservation_id = "res_test",

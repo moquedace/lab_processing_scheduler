@@ -15,7 +15,7 @@ ui <- bslib::page_navbar(
       class = "section-card",
       tags$h2("Status atual dos computadores"),
       tags$p(
-        "Consulte a disponibilidade atual do Super 1 e Super 2 e acompanhe as próximas reservas aprovadas."
+        "Consulte a disponibilidade atual das estações de processamento e acompanhe as próximas reservas aprovadas."
       ),
       uiOutput("public_status_cards")
     ),

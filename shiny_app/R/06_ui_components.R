@@ -65,97 +65,30 @@ hero_ui <- function() {
     class = "app-hero-grid",
     tags$div(
       class = "app-hero",
-      tags$div(class = "hero-badge", "Banco de dados do sistema"),
+      tags$div(class = "hero-badge", "Painel público"),
       tags$h1("Reserva dos Computadores de Processamento"),
       tags$p(
-        "Sistema conectado ao Google Sheets para solicitação, aprovação e acompanhamento ",
-        "das reservas dos computadores Super 1 e Super 2."
+        "Consulte a disponibilidade das estações de processamento do GeoCiS, ",
+        "solicite reservas e acompanhe as aprovações em um só lugar."
       )
     ),
     tags$aside(
       class = "hero-summary-card",
-      tags$span(class = "summary-label", "Status do banco"),
-      tags$div(class = "summary-main", "OK"),
-      tags$p("Base conectada ao Google Sheets e pronta para alimentar o Shiny."),
+      tags$span(class = "summary-label", "Atualização automática"),
+      tags$div(class = "summary-main", "60s"),
+      tags$p("A disponibilidade dos computadores é atualizada automaticamente."),
       tags$div(
         class = "summary-list",
         tags$div(
-          tags$span("Fonte atual"),
-          tags$strong("Google Sheets")
+          tags$span("Consultar"),
+          tags$strong("Painel público")
         ),
         tags$div(
-          tags$span("Etapa atual"),
-          tags$strong("Banco online")
+          tags$span("Solicitar"),
+          tags$strong("Solicitar reserva")
         )
       )
     )
-  )
-}
-
-metric_card_ui <- function(label, output_id, class_name = "") {
-  tags$div(
-    class = paste("metric-card", class_name),
-    tags$span(label),
-    tags$strong(textOutput(output_id, inline = TRUE))
-  )
-}
-
-computer_cards_ui <- function(computers_tbl) {
-  card_list <- purrr::pmap(
-    computers_tbl,
-    function(
-    computer_id,
-    computer_name,
-    computer_label,
-    processor,
-    cores,
-    threads,
-    ram_gb,
-    gpu,
-    gpu_memory_gb,
-    main_profile,
-    status,
-    can_be_booked,
-    public_description,
-    notes,
-    ...
-    ) {
-      tags$article(
-        class = ifelse(
-          computer_id == "super_2",
-          "computer-card computer-card-featured",
-          "computer-card"
-        ),
-        tags$div(
-          class = "computer-card-header",
-          tags$div(
-            tags$h3(computer_name),
-            tags$span(computer_label)
-          ),
-          tags$div(
-            class = ifelse(
-              can_be_booked == "TRUE",
-              "status-pill status-available",
-              "status-pill status-warning"
-            ),
-            ifelse(can_be_booked == "TRUE", "Disponível para reserva", "Indisponível")
-          )
-        ),
-        tags$p(public_description),
-        tags$div(
-          class = "computer-spec-grid",
-          tags$div(tags$span("Processador"), tags$strong(processor)),
-          tags$div(tags$span("Núcleos e threads"), tags$strong(paste0(cores, " núcleos | ", threads, " threads"))),
-          tags$div(tags$span("Memória RAM"), tags$strong(paste0(ram_gb, " GB"))),
-          tags$div(tags$span("GPU"), tags$strong(paste0(gpu, " | ", gpu_memory_gb, " GB")))
-        )
-      )
-    }
-  )
-  
-  tags$div(
-    class = "computer-card-grid",
-    card_list
   )
 }
 
