@@ -55,7 +55,10 @@ required_functions <- c(
   "generate_log_id",
   "create_reservation_row",
   "create_audit_row",
-  "update_reservation_status"
+  "update_reservation_status",
+  "generate_usage_id",
+  "create_usage_row",
+  "finish_usage_row"
 )
 
 test_env <- new.env(parent = globalenv())
@@ -821,6 +824,79 @@ record_test("admin status transitions stamp the correct actor columns", {
   expect_equal(cancelled_row$cancelled_by[1], "admin_test", "Cancel action should stamp cancelled_by.")
   expect_equal(rejected_row$admin_notes[1], "reject note", "Reject note should be preserved.")
   expect_equal(cancelled_row$admin_notes[1], "cancel note", "Cancel note should be preserved.")
+})
+
+record_test("usage row is created with start time and empty end fields", {
+  usage_row <- test_env$create_usage_row(
+    reservation_id = "res_test",
+    user_id = "user_1",
+    computer_assigned = "super_1",
+    actual_start_time = lubridate::ymd_hms("2026-06-15 09:00:00", tz = timezone_value),
+    timezone_value = timezone_value
+  )
+
+  expected_columns <- c(
+    "usage_id", "reservation_id", "user_id", "computer_assigned",
+    "actual_start_time", "actual_end_time", "actual_hours",
+    "finish_reason", "notes"
+  )
+
+  expect_equal(names(usage_row), expected_columns, "Usage row columns changed.")
+  expect_equal(usage_row$reservation_id, "res_test", "Reservation ID preserved.")
+  expect_equal(usage_row$computer_assigned, "super_1", "Computer preserved.")
+  expect_true(is.na(usage_row$actual_end_time), "End time should be NA on creation.")
+  expect_true(is.na(usage_row$actual_hours), "Actual hours should be NA on creation.")
+  expect_true(nzchar(usage_row$usage_id), "Usage ID should be non-empty.")
+})
+
+record_test("finish usage row updates end time and computes actual hours", {
+  usage_tbl <- tibble::tibble(
+    usage_id = "use_001",
+    reservation_id = "res_test",
+    user_id = "user_1",
+    computer_assigned = "super_1",
+    actual_start_time = "2026-06-15 09:00:00",
+    actual_end_time = NA_character_,
+    actual_hours = NA_character_,
+    finish_reason = NA_character_,
+    notes = NA_character_
+  )
+
+  updated <- test_env$finish_usage_row(
+    usage_log_tbl = usage_tbl,
+    reservation_id_value = "res_test",
+    actual_end_time = lubridate::ymd_hms("2026-06-15 11:30:00", tz = timezone_value),
+    finish_reason = "normal",
+    timezone_value = timezone_value
+  )
+
+  expect_true(!is.na(updated$actual_end_time[1]), "End time should be set after finish.")
+  expect_equal(updated$actual_hours[1], "2.5", "Actual hours should be 2.5h.")
+  expect_equal(updated$finish_reason[1], "normal", "Finish reason should be set.")
+})
+
+record_test("finish usage row is no-op when no open usage row exists", {
+  empty_usage <- tibble::tibble(
+    usage_id = character(),
+    reservation_id = character(),
+    user_id = character(),
+    computer_assigned = character(),
+    actual_start_time = character(),
+    actual_end_time = character(),
+    actual_hours = character(),
+    finish_reason = character(),
+    notes = character()
+  )
+
+  result <- test_env$finish_usage_row(
+    usage_log_tbl = empty_usage,
+    reservation_id_value = "res_missing",
+    actual_end_time = lubridate::ymd_hms("2026-06-15 11:00:00", tz = timezone_value),
+    finish_reason = "normal",
+    timezone_value = timezone_value
+  )
+
+  expect_equal(nrow(result), 0L, "Empty table should be returned unchanged.")
 })
 
 print(test_results, n = Inf)

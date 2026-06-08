@@ -305,6 +305,78 @@ create_audit_row <- function(
   )
 }
 
+generate_usage_id <- function() {
+  paste0(
+    "use_",
+    format(Sys.time(), "%Y%m%d_%H%M%S"),
+    "_",
+    sample(1000:9999, 1)
+  )
+}
+
+create_usage_row <- function(
+    reservation_id,
+    user_id,
+    computer_assigned,
+    actual_start_time,
+    timezone_value
+) {
+  tibble::tibble(
+    usage_id = generate_usage_id(),
+    reservation_id = reservation_id,
+    user_id = user_id,
+    computer_assigned = computer_assigned,
+    actual_start_time = format_datetime_pt(actual_start_time, timezone_value),
+    actual_end_time = NA_character_,
+    actual_hours = NA_character_,
+    finish_reason = NA_character_,
+    notes = NA_character_
+  )
+}
+
+finish_usage_row <- function(
+    usage_log_tbl,
+    reservation_id_value,
+    actual_end_time,
+    finish_reason,
+    timezone_value
+) {
+  usage_log_tbl <- usage_log_tbl %>%
+    dplyr::mutate(dplyr::across(dplyr::everything(), ~ as.character(.x)))
+
+  row_id <- which(
+    usage_log_tbl$reservation_id == reservation_id_value &
+      (is.na(usage_log_tbl$actual_end_time) | usage_log_tbl$actual_end_time == "")
+  )
+
+  if (length(row_id) == 0) {
+    return(usage_log_tbl)
+  }
+
+  start_parsed <- lubridate::ymd_hms(
+    usage_log_tbl$actual_start_time[row_id[1]],
+    tz = timezone_value,
+    quiet = TRUE
+  )
+
+  actual_h <- if (!is.na(start_parsed)) {
+    as.character(
+      round(
+        as.numeric(difftime(actual_end_time, start_parsed, units = "hours")),
+        2
+      )
+    )
+  } else {
+    NA_character_
+  }
+
+  usage_log_tbl$actual_end_time[row_id[1]] <- format_datetime_pt(actual_end_time, timezone_value)
+  usage_log_tbl$actual_hours[row_id[1]] <- actual_h
+  usage_log_tbl$finish_reason[row_id[1]] <- finish_reason
+
+  usage_log_tbl
+}
+
 update_reservation_status <- function(
     reservations_tbl,
     reservation_id_value,

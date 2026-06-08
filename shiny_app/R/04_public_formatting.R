@@ -60,31 +60,23 @@ format_reservations_public <- function(reservations_tbl, users_tbl, lists_tbl) {
   if (nrow(reservations_tbl) == 0) {
     return(
       tibble::tibble(
-        "Reserva" = character(),
         "Usuário" = character(),
-        "Computador solicitado" = character(),
-        "Computador atribuído" = character(),
+        "Computador" = character(),
         "Início" = character(),
         "Fim previsto" = character(),
         "Duração h" = character(),
-        "Tipo" = character(),
-        "Status" = character(),
-        "Aprovação" = character(),
-        "Prioridade" = character()
+        "Tipo de processamento" = character(),
+        "Status" = character()
       )
     )
   }
-  
+
   reservations_tbl %>%
     dplyr::left_join(
       users_tbl %>% dplyr::select(user_id, full_name),
       by = "user_id"
     ) %>%
     dplyr::mutate(
-      computer_requested_label = purrr::map_chr(
-        computer_requested,
-        ~ get_label_from_value(lists_tbl, "computer_requested", .x)
-      ),
       computer_assigned_label = purrr::map_chr(
         computer_assigned,
         ~ get_label_from_value(lists_tbl, "computer_assigned", .x)
@@ -96,37 +88,25 @@ format_reservations_public <- function(reservations_tbl, users_tbl, lists_tbl) {
       status_label = purrr::map_chr(
         status,
         ~ get_label_from_value(lists_tbl, "reservation_status", .x)
-      ),
-      approval_mode_label = purrr::map_chr(
-        approval_mode,
-        ~ get_label_from_value(lists_tbl, "approval_mode", .x)
       )
     ) %>%
     dplyr::select(
-      reservation_id,
       full_name,
-      computer_requested_label,
       computer_assigned_label,
       start_time,
       end_time,
       estimated_hours,
       processing_type_label,
-      status_label,
-      approval_mode_label,
-      priority_score
+      status_label
     ) %>%
     dplyr::rename(
-      "Reserva" = reservation_id,
       "Usuário" = full_name,
-      "Computador solicitado" = computer_requested_label,
-      "Computador atribuído" = computer_assigned_label,
+      "Computador" = computer_assigned_label,
       "Início" = start_time,
       "Fim previsto" = end_time,
       "Duração h" = estimated_hours,
-      "Tipo" = processing_type_label,
-      "Status" = status_label,
-      "Aprovação" = approval_mode_label,
-      "Prioridade" = priority_score
+      "Tipo de processamento" = processing_type_label,
+      "Status" = status_label
     )
 }
 
