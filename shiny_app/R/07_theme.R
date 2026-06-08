@@ -21,6 +21,7 @@ app_css <- "
   --green-dark: #0c6347;
   --orange: #a55b12;
   --orange-soft: #fff4e6;
+  --orange-dark: #834813;
   --border: #e1e8f0;
   --shadow: 0 18px 48px rgba(20, 40, 68, 0.09);
   --shadow-soft: 0 10px 28px rgba(20, 40, 68, 0.06);
@@ -735,6 +736,48 @@ table.dataTable tbody td {
 .btn-success:focus,
 .btn-success:focus-visible {
   box-shadow: 0 0 0 0.25rem rgba(15, 122, 88, 0.35);
+}
+
+/* Rejeitar: âmbar da página */
+.btn-warning {
+  --bs-btn-color: var(--text-light);
+  --bs-btn-bg: var(--orange);
+  --bs-btn-border-color: var(--orange);
+  --bs-btn-hover-color: var(--text-light);
+  --bs-btn-hover-bg: var(--orange-dark);
+  --bs-btn-hover-border-color: var(--orange-dark);
+  --bs-btn-active-color: var(--text-light);
+  --bs-btn-active-bg: var(--orange-dark);
+  --bs-btn-active-border-color: var(--orange-dark);
+  --bs-btn-disabled-color: var(--text-light);
+  --bs-btn-disabled-bg: var(--orange);
+  --bs-btn-disabled-border-color: var(--orange);
+}
+
+.btn-warning:focus,
+.btn-warning:focus-visible {
+  box-shadow: 0 0 0 0.25rem rgba(165, 91, 18, 0.35);
+}
+
+/* Iniciar uso: navy alinhado à paleta (distinto do Finalizar uso cinza) */
+.btn-info {
+  --bs-btn-color: var(--text-light);
+  --bs-btn-bg: var(--primary);
+  --bs-btn-border-color: var(--primary);
+  --bs-btn-hover-color: var(--text-light);
+  --bs-btn-hover-bg: var(--primary-dark);
+  --bs-btn-hover-border-color: var(--primary-dark);
+  --bs-btn-active-color: var(--text-light);
+  --bs-btn-active-bg: var(--primary-dark);
+  --bs-btn-active-border-color: var(--primary-dark);
+  --bs-btn-disabled-color: var(--text-light);
+  --bs-btn-disabled-bg: var(--primary);
+  --bs-btn-disabled-border-color: var(--primary);
+}
+
+.btn-info:focus,
+.btn-info:focus-visible {
+  box-shadow: 0 0 0 0.25rem rgba(23, 76, 120, 0.35);
 }
 
 .app-footer {
