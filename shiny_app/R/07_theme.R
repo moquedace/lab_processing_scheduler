@@ -688,6 +688,37 @@ table.dataTable tbody td {
   border-top: 1px solid var(--border);
 }
 
+/* Paginação do DataTable alinhada à paleta navy (sobrepõe o teal do flatly) */
+.dataTables_wrapper .dataTables_paginate .paginate_button,
+.dataTables_wrapper .pagination .page-link {
+  color: var(--primary) !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover,
+.dataTables_wrapper .pagination .page-link:hover {
+  color: var(--text-light) !important;
+  background: var(--primary-dark) !important;
+  border-color: var(--primary-dark) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover,
+.dataTables_wrapper .pagination .page-item.active .page-link {
+  color: var(--text-light) !important;
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+  color: var(--text-muted) !important;
+  background: var(--surface-soft) !important;
+  border-color: var(--border) !important;
+}
+
 .app-footer {
   display: flex;
   justify-content: space-between;
