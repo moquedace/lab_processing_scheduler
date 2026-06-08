@@ -1,42 +1,42 @@
 theme_app <- bslib::bs_theme(
   version = 5,
   bootswatch = "flatly",
-  primary = "#1f4f7a",
+  primary = "#174c78",
   base_font = bslib::font_google("Inter")
 )
 
 app_css <- "
 :root {
-  --background: #f4f7fb;
+  --background: #eef3f8;
   --surface: #ffffff;
-  --surface-soft: #f8fafc;
+  --surface-soft: #f7fafc;
   --text-main: #101828;
-  --text-muted: #667085;
+  --text-muted: #5d6b82;
   --text-light: #ffffff;
-  --primary: #1f4f7a;
-  --primary-dark: #123552;
-  --primary-soft: #e8f1fb;
-  --green: #0f8a5f;
+  --primary: #174c78;
+  --primary-dark: #0b2b45;
+  --primary-soft: #e8f2fb;
+  --green: #0f7a58;
   --green-soft: #e8f7ef;
-  --orange: #b85c00;
-  --orange-soft: #fff2df;
-  --border: #e5e7eb;
-  --shadow: 0 20px 55px rgba(15, 23, 42, 0.08);
-  --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.05);
-  --radius-large: 28px;
-  --radius-medium: 20px;
-  --radius-small: 14px;
+  --orange: #a55b12;
+  --orange-soft: #fff4e6;
+  --border: #e1e8f0;
+  --shadow: 0 18px 48px rgba(20, 40, 68, 0.09);
+  --shadow-soft: 0 10px 28px rgba(20, 40, 68, 0.06);
+  --radius-large: 12px;
+  --radius-medium: 10px;
+  --radius-small: 8px;
 }
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(31, 79, 122, 0.16), transparent 34rem),
-    linear-gradient(180deg, #eef5fb 0%, #f7f9fc 42%, #ffffff 100%);
+    radial-gradient(circle at top left, rgba(23, 76, 120, 0.14), transparent 34rem),
+    linear-gradient(180deg, #eef3f8 0%, #f7f9fc 42%, #ffffff 100%);
   color: var(--text-main);
 }
 
 .navbar {
-  background: #0f172a !important;
+  background: #0b2b45 !important;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
 }
 
@@ -169,7 +169,7 @@ body {
   gap: 8px;
   margin-bottom: 18px;
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 8px;
   color: var(--primary);
   background: var(--primary-soft);
   font-size: 0.84rem;
@@ -200,7 +200,7 @@ body {
   padding: 28px;
   border-radius: var(--radius-large);
   color: var(--text-light);
-  background: #0f172a;
+  background: #0b2b45;
   box-shadow: var(--shadow);
 }
 
@@ -211,7 +211,7 @@ body {
   width: 220px;
   height: 220px;
   content: '';
-  border-radius: 999px;
+  border-radius: 50%;
   background: rgba(59, 130, 246, 0.24);
 }
 
@@ -310,7 +310,7 @@ body {
 .status-ok {
   color: var(--green);
   background: var(--green-soft);
-  border-radius: 999px;
+  border-radius: 8px;
   padding: 7px 13px;
   font-weight: 850;
   display: inline-flex;
@@ -320,7 +320,7 @@ body {
 .status-warning {
   color: var(--orange);
   background: var(--orange-soft);
-  border-radius: 999px;
+  border-radius: 8px;
   padding: 7px 13px;
   font-weight: 850;
   display: inline-flex;
@@ -413,7 +413,7 @@ body {
 
 .preview-status {
   padding: 8px 12px;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 850;
   white-space: nowrap;
@@ -483,7 +483,7 @@ body {
 
 .submit-area .btn {
   width: 100%;
-  border-radius: 999px;
+  border-radius: 8px;
   font-weight: 850;
   min-height: 44px;
 }
@@ -528,7 +528,7 @@ body {
   justify-content: center;
   width: fit-content;
   padding: 8px 12px;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 900;
   white-space: nowrap;
@@ -571,7 +571,7 @@ body {
 
 .public-machine-specs span {
   padding: 7px 11px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--primary-soft);
   color: var(--primary);
   font-size: 0.78rem;
@@ -593,9 +593,9 @@ body {
 }
 
 .computer-card-featured {
-  border-color: rgba(31, 79, 122, 0.25);
+  border-color: rgba(23, 76, 120, 0.25);
   background:
-    radial-gradient(circle at top right, rgba(31, 79, 122, 0.08), transparent 18rem),
+    radial-gradient(circle at top right, rgba(23, 76, 120, 0.08), transparent 18rem),
     #ffffff;
 }
 
@@ -631,7 +631,7 @@ body {
   justify-content: center;
   width: fit-content;
   padding: 8px 12px;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 850;
   white-space: nowrap;
