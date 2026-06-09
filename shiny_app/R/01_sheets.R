@@ -150,8 +150,8 @@ read_sheet_clean <- function(sheet_name) {
   normalize_sheet_schema(sheet_tbl, sheet_name)
 }
 
-# Abas que mudam raramente (cadastros e configuração).
-# Relidas apenas quando o app força recarga (reload_key), não no timer.
+# Abas que mudam raramente (cadastros e configura��o).
+# Relidas apenas quando o app for�a recarga (reload_key), n�o no timer.
 static_sheet_names <- c(
   "users",
   "computers",
@@ -160,8 +160,8 @@ static_sheet_names <- c(
   "settings"
 )
 
-# Abas que mudam com frequência (operação diária).
-# Relidas pelo timer de atualização automática.
+# Abas que mudam com frequ�ncia (opera��o di�ria).
+# Relidas pelo timer de atualiza��o autom�tica.
 dynamic_sheet_names <- c(
   "reservations",
   "usage_log",

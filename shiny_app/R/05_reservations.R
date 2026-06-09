@@ -131,7 +131,7 @@ suggest_computer_assignment <- function(
   )
 
   if (length(computer_order) == 0) {
-    stop("Nenhum computador ativo e reservÃ¡vel foi encontrado.")
+    stop("Nenhum computador ativo e reservável foi encontrado.")
   }
 
   if (computer_requested %in% computer_order) {
@@ -187,19 +187,19 @@ decide_approval_mode <- function(
   reasons <- character(0)
 
   if (user_level %in% manual_user_levels) {
-    reasons <- c(reasons, "categoria exige aprovaÃ§Ã£o manual")
+    reasons <- c(reasons, "categoria exige aprovação manual")
   }
 
   if (!is.na(manual_above_hours) && estimated_hours > manual_above_hours) {
-    reasons <- c(reasons, "duraÃ§Ã£o acima do limite de aprovaÃ§Ã£o automÃ¡tica")
+    reasons <- c(reasons, "duração acima do limite de aprovação automática")
   }
 
   if (manual_if_requires_super_2 && requires_super_2 == "yes") {
-    reasons <- c(reasons, "uso obrigatÃ³rio do Super 2")
+    reasons <- c(reasons, "uso obrigatório do Super 2")
   }
 
   if (manual_if_conflict && has_conflict) {
-    reasons <- c(reasons, "conflito de horÃ¡rio")
+    reasons <- c(reasons, "conflito de horário")
   }
 
   if (manual_if_unknown_demand && computing_demand == "unknown") {
@@ -210,7 +210,7 @@ decide_approval_mode <- function(
     return(list(mode = "manual", reasons = reasons))
   }
 
-  list(mode = "automatic", reasons = "atende aos critÃ©rios de aprovaÃ§Ã£o automÃ¡tica")
+  list(mode = "automatic", reasons = "atende aos critérios de aprovação automática")
 }
 
 decide_reservation_status <- function(approval_mode, settings_tbl) {
@@ -437,7 +437,7 @@ update_reservation_status <- function(
   row_id <- which(reservations_tbl$reservation_id == reservation_id_value)
 
   if (length(row_id) != 1) {
-    stop("Reserva nÃ£o encontrada ou identificador duplicado.")
+    stop("Reserva não encontrada ou identificador duplicado.")
   }
 
   old_status <- reservations_tbl$status[row_id]
@@ -445,7 +445,7 @@ update_reservation_status <- function(
   reservations_tbl$status[row_id] <- new_status
   reservations_tbl$updated_at[row_id] <- now_text
 
-  # SÃ³ sobrescreve a observaÃ§Ã£o quando uma nova Ã© informada, para nÃ£o apagar
+  # Só sobrescreve a observação quando uma nova é informada, para não apagar
   # notas anteriores ao iniciar ou finalizar o uso sem digitar nada.
   if (!is.na(admin_notes_value)) {
     reservations_tbl$admin_notes[row_id] <- admin_notes_value

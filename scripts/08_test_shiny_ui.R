@@ -439,7 +439,7 @@ run_admin_action <- function(
     event_type,
     finish_reason = NULL
 ) {
-  app$set_inputs(main_nav = "AdministraÃ§Ã£o")
+  app$set_inputs(main_nav = "Administração")
   wait_for_app(2)
 
   app$set_inputs(
@@ -529,7 +529,7 @@ reservation_values <- get_values_checked("reservations output")
 expect_snapshot(reservation_values, "reservations_table", "reservations output")
 
 message("Logging into administration and exercising admin actions...")
-app$set_inputs(main_nav = "AdministraÃ§Ã£o")
+app$set_inputs(main_nav = "Administração")
 wait_for_app(1)
 
 admin_values <- get_values_checked("admin output")

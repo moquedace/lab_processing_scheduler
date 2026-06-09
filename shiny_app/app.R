@@ -135,8 +135,8 @@ server <- function(input, output, session) {
   admin_authenticated <- reactiveVal(FALSE)
   auto_refresh <- reactiveTimer(60000, session = session)
 
-  # Cadastros e configuraÃ§Ã£o: relidos apenas em recarga explÃ­cita (envio,
-  # aÃ§Ã£o administrativa). NÃ£o dependem do timer, poupando chamadas Ã  API.
+  # Cadastros e configuração: relidos apenas em recarga explícita (envio,
+  # ação administrativa). Não dependem do timer, poupando chamadas à API.
   static_tables <- reactive({
     reload_key()
 
@@ -147,7 +147,7 @@ server <- function(input, output, session) {
     read_static_tables()
   })
 
-  # Reservas, uso e auditoria: relidos no timer e em cada recarga explÃ­cita.
+  # Reservas, uso e auditoria: relidos no timer e em cada recarga explícita.
   dynamic_tables <- reactive({
     auto_refresh()
     reload_key()
@@ -159,7 +159,7 @@ server <- function(input, output, session) {
     read_dynamic_tables()
   })
 
-  # Interface Ãºnica: database()$users, database()$reservations, etc.
+  # Interface única: database()$users, database()$reservations, etc.
   database <- reactive({
     c(static_tables(), dynamic_tables())
   })
@@ -303,17 +303,17 @@ server <- function(input, output, session) {
     }
 
     validate(
-      need(nrow(user_tbl) == 1, "Selecione um usuÃ¡rio vÃ¡lido."),
+      need(nrow(user_tbl) == 1, "Selecione um usuário válido."),
       need(input$booking_email != "", "Confirme o e-mail cadastrado."),
       need(
         stringr::str_to_lower(input$booking_email) == stringr::str_to_lower(user_tbl$email),
-        "O e-mail informado nÃ£o confere com o e-mail cadastrado."
+        "O e-mail informado não confere com o e-mail cadastrado."
       ),
       need(
         !is.na(estimated_hours_value) &&
           is.finite(estimated_hours_value) &&
           estimated_hours_value > 0,
-        "Informe uma duraÃ§Ã£o vÃ¡lida."
+        "Informe uma duração válida."
       )
     )
 
@@ -477,7 +477,7 @@ server <- function(input, output, session) {
 
         showNotification(
           paste0(
-            "SolicitaÃ§Ã£o enviada com sucesso: ",
+            "Solicitação enviada com sucesso: ",
             new_reservation$reservation_id[1]
           ),
           type = "message",
@@ -489,7 +489,7 @@ server <- function(input, output, session) {
       error = function(e) {
         showNotification(
           paste(
-            "NÃ£o foi possÃ­vel gravar a solicitaÃ§Ã£o no Google Sheets.",
+            "Não foi possível gravar a solicitação no Google Sheets.",
             e$message
           ),
           type = "error",
@@ -520,7 +520,7 @@ server <- function(input, output, session) {
             class = "empty-preview",
             tags$h3("Acesso restrito"),
             tags$p(
-              "Use esta Ã¡rea apenas para revisar solicitaÃ§Ãµes e alterar status de reservas."
+              "Use esta área apenas para revisar solicitações e alterar status de reservas."
             )
           )
         )
@@ -599,7 +599,7 @@ server <- function(input, output, session) {
           tags$h4(class = "form-section-title", "Reserva"),
           actionButton(
             inputId = "admin_logout",
-            label = "Sair da administraÃ§Ã£o",
+            label = "Sair da administração",
             class = "btn-outline-secondary"
           )
         ),
@@ -611,14 +611,14 @@ server <- function(input, output, session) {
         ),
         textAreaInput(
           inputId = "admin_notes",
-          label = "ObservaÃ§Ã£o administrativa",
-          placeholder = "Informe o motivo da decisÃ£o ou alguma orientaÃ§Ã£o para o usuÃ¡rio.",
+          label = "Observação administrativa",
+          placeholder = "Informe o motivo da decisão ou alguma orientação para o usuário.",
           rows = 3,
           value = current_admin_notes
         ),
         selectInput(
           inputId = "admin_finish_reason",
-          label = "Motivo da finalizaÃ§Ã£o",
+          label = "Motivo da finalização",
           choices = finish_reason_choices,
           selected = selected_finish_reason
         ),
@@ -670,7 +670,7 @@ server <- function(input, output, session) {
           tags$div(style = "margin-top: 12px;", DT::DTOutput("admin_approved_table"))
         ),
         tabPanel(
-          "HistÃ³rico",
+          "Histórico",
           tags$div(style = "margin-top: 12px;", DT::DTOutput("admin_history_table"))
         ),
         tabPanel(
@@ -687,7 +687,7 @@ server <- function(input, output, session) {
 
     if (expected_password == "") {
       showNotification(
-        "Senha administrativa nÃ£o configurada no ambiente R.",
+        "Senha administrativa não configurada no ambiente R.",
         type = "error",
         duration = 8
       )
@@ -721,7 +721,7 @@ server <- function(input, output, session) {
     )
 
     showNotification(
-      "SessÃ£o administrativa encerrada.",
+      "Sessão administrativa encerrada.",
       type = "message",
       duration = 5
     )
@@ -754,8 +754,8 @@ server <- function(input, output, session) {
       return(
         tags$div(
           class = "empty-preview",
-          tags$h3("Reserva nÃ£o encontrada"),
-          tags$p("A reserva selecionada nÃ£o foi encontrada na base.")
+          tags$h3("Reserva não encontrada"),
+          tags$p("A reserva selecionada não foi encontrada na base.")
         )
       )
     }
@@ -796,7 +796,7 @@ server <- function(input, output, session) {
       tags$div(
         class = "preview-header",
         tags$div(
-          tags$span(class = "section-kicker", "RevisÃ£o administrativa"),
+          tags$span(class = "section-kicker", "Revisão administrativa"),
           tags$h3(reservation_tbl$full_name)
         ),
         tags$div(class = status_badge_class, status_label)
@@ -806,10 +806,10 @@ server <- function(input, output, session) {
         tags$div(tags$span("Reserva"), tags$strong(reservation_tbl$reservation_id)),
         tags$div(tags$span("Categoria"), tags$strong(reservation_tbl$user_level_label)),
         tags$div(tags$span("Computador solicitado"), tags$strong(computer_requested_label)),
-        tags$div(tags$span("Computador atribuÃ­do"), tags$strong(computer_assigned_label)),
-        tags$div(tags$span("InÃ­cio"), tags$strong(reservation_tbl$start_time)),
+        tags$div(tags$span("Computador atribuído"), tags$strong(computer_assigned_label)),
+        tags$div(tags$span("Início"), tags$strong(reservation_tbl$start_time)),
         tags$div(tags$span("Fim previsto"), tags$strong(reservation_tbl$end_time)),
-        tags$div(tags$span("DuraÃ§Ã£o h"), tags$strong(reservation_tbl$estimated_hours)),
+        tags$div(tags$span("Duração h"), tags$strong(reservation_tbl$estimated_hours)),
         tags$div(tags$span("Prioridade"), tags$strong(reservation_tbl$priority_score)),
         tags$div(tags$span("Tipo"), tags$strong(processing_type_label)),
         tags$div(tags$span("Demanda"), tags$strong(computing_demand_label)),
@@ -895,7 +895,7 @@ server <- function(input, output, session) {
       error = function(e) {
         showNotification(
           paste(
-            "NÃ£o foi possÃ­vel atualizar a reserva no Google Sheets.",
+            "Não foi possível atualizar a reserva no Google Sheets.",
             e$message
           ),
           type = "error",
@@ -1023,7 +1023,7 @@ server <- function(input, output, session) {
       },
       error = function(e) {
         showNotification(
-          paste("NÃ£o foi possÃ­vel iniciar o uso.", e$message),
+          paste("Não foi possível iniciar o uso.", e$message),
           type = "error",
           duration = 10
         )
@@ -1132,7 +1132,7 @@ server <- function(input, output, session) {
       },
       error = function(e) {
         showNotification(
-          paste("NÃ£o foi possÃ­vel finalizar o uso.", e$message),
+          paste("Não foi possível finalizar o uso.", e$message),
           type = "error",
           duration = 10
         )
@@ -1169,11 +1169,11 @@ server <- function(input, output, session) {
       ) %>%
       dplyr::rename(
         "Reserva"      = reservation_id,
-        "UsuÃ¡rio"      = full_name,
+        "Usuário"      = full_name,
         "Computador"   = computer_label,
-        "InÃ­cio"       = start_time,
+        "Início"       = start_time,
         "Fim previsto" = end_time,
-        "DuraÃ§Ã£o h"    = estimated_hours,
+        "Duração h"    = estimated_hours,
         "Status"       = status_label
       )
 
@@ -1213,11 +1213,11 @@ server <- function(input, output, session) {
       ) %>%
       dplyr::rename(
         "Reserva"    = reservation_id,
-        "UsuÃ¡rio"    = full_name,
+        "Usuário"    = full_name,
         "Computador" = computer_label,
-        "InÃ­cio"     = start_time,
+        "Início"     = start_time,
         "Status"     = status_label,
-        "ObservaÃ§Ã£o" = admin_notes
+        "Observação" = admin_notes
       )
 
     DT::datatable(
@@ -1244,8 +1244,8 @@ server <- function(input, output, session) {
   outputOptions(output, "admin_audit_table", suspendWhenHidden = FALSE)
 
   output$reservations_table <- DT::renderDT({
-    # VisÃ£o pÃºblica: mostra todas as reservas exceto rejeitadas e canceladas,
-    # sem filtro de data â€” usa o mesmo formatter que o painel pÃºblico para
+    # Visão pública: mostra todas as reservas exceto rejeitadas e canceladas,
+    # sem filtro de data — usa o mesmo formatter que o painel público para
     # garantir colunas consistentes com os settings configurados.
     DT::datatable(
       format_public_reservations(

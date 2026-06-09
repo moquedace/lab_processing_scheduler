@@ -5,12 +5,12 @@ dt_language_pt <- list(
   infoEmpty = "Mostrando 0 a 0 de 0 registros",
   infoFiltered = "(filtrado de _MAX_ registros)",
   zeroRecords = "Nenhum registro encontrado",
-  emptyTable = "Nenhum dado disponível",
+  emptyTable = "Nenhum dado dispon�vel",
   paginate = list(
     first = "Primeiro",
     previous = "Anterior",
-    `next` = "Próximo",
-    last = "Último"
+    `next` = "Pr�ximo",
+    last = "�ltimo"
   )
 )
 
@@ -26,15 +26,15 @@ institutional_header_ui <- function() {
       ),
       tags$div(
         class = "institutional-text",
-        tags$span("Grupo de Geotecnologias em Ciência do Solo"),
-        tags$strong("Departamento de Ciência do Solo | ESALQ | USP")
+        tags$span("Grupo de Geotecnologias em Ci�ncia do Solo"),
+        tags$strong("Departamento de Ci�ncia do Solo | ESALQ | USP")
       )
     ),
     tags$div(
       class = "institutional-logo-row",
       tags$img(
         src = "site-assets/logo_solos.png",
-        alt = "Departamento de Ciência do Solo",
+        alt = "Departamento de Ci�ncia do Solo",
         class = "logo-institution logo-solos"
       ),
       tags$img(
@@ -65,23 +65,23 @@ hero_ui <- function() {
     class = "app-hero-grid",
     tags$div(
       class = "app-hero",
-      tags$div(class = "hero-badge", "Painel público"),
+      tags$div(class = "hero-badge", "Painel p�blico"),
       tags$h1("Reserva dos Computadores de Processamento"),
       tags$p(
-        "Consulte a disponibilidade das estações de processamento do GeoCiS, ",
-        "solicite reservas e acompanhe as aprovações em um só lugar."
+        "Consulte a disponibilidade das esta��es de processamento do GeoCiS, ",
+        "solicite reservas e acompanhe as aprova��es em um s� lugar."
       )
     ),
     tags$aside(
       class = "hero-summary-card",
-      tags$span(class = "summary-label", "Atualização automática"),
+      tags$span(class = "summary-label", "Atualiza��o autom�tica"),
       tags$div(class = "summary-main", "60s"),
-      tags$p("A disponibilidade dos computadores é atualizada automaticamente."),
+      tags$p("A disponibilidade dos computadores � atualizada automaticamente."),
       tags$div(
         class = "summary-list",
         tags$div(
           tags$span("Consultar"),
-          tags$strong("Painel público")
+          tags$strong("Painel p�blico")
         ),
         tags$div(
           tags$span("Solicitar"),
@@ -103,8 +103,8 @@ footer_ui <- function() {
         class = "footer-logo"
       ),
       tags$div(
-        tags$p("Grupo de Geotecnologias em Ciência do Solo"),
-        tags$span("Departamento de Ciência do Solo | Escola Superior de Agricultura Luiz de Queiroz | Universidade de São Paulo")
+        tags$p("Grupo de Geotecnologias em Ci�ncia do Solo"),
+        tags$span("Departamento de Ci�ncia do Solo | Escola Superior de Agricultura Luiz de Queiroz | Universidade de S�o Paulo")
       )
     ),
     tags$div(
@@ -124,21 +124,21 @@ reservation_preview_ui <- function(preview) {
     return(
       tags$div(
         class = "empty-preview",
-        tags$h3("Prévia da solicitação"),
-        tags$p("Preencha o formulário e clique em Gerar prévia da reserva.")
+        tags$h3("Pr�via da solicita��o"),
+        tags$p("Preencha o formul�rio e clique em Gerar pr�via da reserva.")
       )
     )
   }
   
   status_class <- ifelse(preview$status == "approved", "preview-approved", "preview-pending")
-  status_label <- ifelse(preview$status == "approved", "Aprovada automaticamente", "Pendente de aprovação")
+  status_label <- ifelse(preview$status == "approved", "Aprovada automaticamente", "Pendente de aprova��o")
   
   tags$div(
     class = "preview-card",
     tags$div(
       class = "preview-header",
       tags$div(
-        tags$span(class = "section-kicker", "Prévia da solicitação"),
+        tags$span(class = "section-kicker", "Pr�via da solicita��o"),
         tags$h3(preview$user_name)
       ),
       tags$div(class = paste("preview-status", status_class), status_label)
@@ -147,9 +147,9 @@ reservation_preview_ui <- function(preview) {
       class = "preview-grid",
       tags$div(tags$span("Computador solicitado"), tags$strong(preview$computer_requested_label)),
       tags$div(tags$span("Computador sugerido"), tags$strong(preview$computer_assigned_label)),
-      tags$div(tags$span("Início"), tags$strong(preview$start_time_label)),
+      tags$div(tags$span("In�cio"), tags$strong(preview$start_time_label)),
       tags$div(tags$span("Fim previsto"), tags$strong(preview$end_time_label)),
-      tags$div(tags$span("Duração estimada"), tags$strong(paste0(preview$estimated_hours, " h"))),
+      tags$div(tags$span("Dura��o estimada"), tags$strong(paste0(preview$estimated_hours, " h"))),
       tags$div(tags$span("Ambiente"), tags$strong(preview$main_environment_label)),
       tags$div(tags$span("Tipo de processamento"), tags$strong(preview$processing_type_label)),
       tags$div(tags$span("Demanda computacional"), tags$strong(preview$computing_demand_label)),
@@ -160,18 +160,18 @@ reservation_preview_ui <- function(preview) {
     ),
     tags$div(
       class = "preview-reasons",
-      tags$span("Decisão preliminar"),
+      tags$span("Decis�o preliminar"),
       tags$p(preview$approval_reason)
     ),
     tags$p(
       class = "preview-note",
-      "Confira os dados antes de enviar. A solicitação será gravada no Google Sheets."
+      "Confira os dados antes de enviar. A solicita��o ser� gravada no Google Sheets."
     ),
     tags$div(
       class = "submit-area",
       actionButton(
         inputId = "submit_booking",
-        label = "Enviar solicitação",
+        label = "Enviar solicita��o",
         class = "btn-success"
       )
     )

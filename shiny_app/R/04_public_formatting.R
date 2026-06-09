@@ -2,11 +2,11 @@ format_reservations_public <- function(reservations_tbl, users_tbl, lists_tbl) {
   if (nrow(reservations_tbl) == 0) {
     return(
       tibble::tibble(
-        "Usuário" = character(),
+        "Usu�rio" = character(),
         "Computador" = character(),
-        "Início" = character(),
+        "In�cio" = character(),
         "Fim previsto" = character(),
-        "Duração h" = character(),
+        "Dura��o h" = character(),
         "Tipo de processamento" = character(),
         "Status" = character()
       )
@@ -42,11 +42,11 @@ format_reservations_public <- function(reservations_tbl, users_tbl, lists_tbl) {
       status_label
     ) %>%
     dplyr::rename(
-      "Usuário" = full_name,
+      "Usu�rio" = full_name,
       "Computador" = computer_assigned_label,
-      "Início" = start_time,
+      "In�cio" = start_time,
       "Fim previsto" = end_time,
-      "Duração h" = estimated_hours,
+      "Dura��o h" = estimated_hours,
       "Tipo de processamento" = processing_type_label,
       "Status" = status_label
     )
@@ -60,11 +60,11 @@ format_audit_public <- function(audit_tbl, users_tbl) {
         "Data" = character(),
         "Evento" = character(),
         "Reserva" = character(),
-        "Usuário" = character(),
+        "Usu�rio" = character(),
         "Admin" = character(),
         "Antes" = character(),
         "Depois" = character(),
-        "Observação" = character()
+        "Observa��o" = character()
       )
     )
   }
@@ -90,11 +90,11 @@ format_audit_public <- function(audit_tbl, users_tbl) {
       "Data" = event_time,
       "Evento" = event_type,
       "Reserva" = reservation_id,
-      "Usuário" = full_name,
+      "Usu�rio" = full_name,
       "Admin" = admin_user,
       "Antes" = old_value,
       "Depois" = new_value,
-      "Observação" = notes
+      "Observa��o" = notes
     )
 }
 
@@ -115,13 +115,13 @@ empty_public_reservation_table <- function(settings_tbl) {
   show_processing_type <- get_setting_logical(settings_tbl, "public_show_processing_type", TRUE)
   show_computing_demand <- get_setting_logical(settings_tbl, "public_show_computing_demand", FALSE)
   
-  column_names <- c("Computador", "Usuário")
+  column_names <- c("Computador", "Usu�rio")
   
   if (show_user_level) {
     column_names <- c(column_names, "Categoria")
   }
   
-  column_names <- c(column_names, "Início", "Fim previsto")
+  column_names <- c(column_names, "In�cio", "Fim previsto")
   
   if (show_processing_type) {
     column_names <- c(column_names, "Tipo de processamento")
@@ -212,7 +212,7 @@ format_public_reservations <- function(
       end_label = format_datetime_label_vector(end_dt, timezone_value),
       full_name = dplyr::if_else(
         is.na(full_name) | full_name == "",
-        "Usuário não informado",
+        "Usu�rio n�o informado",
         full_name
       )
     ) %>%
@@ -220,17 +220,17 @@ format_public_reservations <- function(
   
   public_tbl <- tibble::tibble(
     "Computador" = out$computer_label,
-    "Usuário" = out$full_name
+    "Usu�rio" = out$full_name
   )
   
   if (show_user_level) {
     public_tbl <- public_tbl %>%
-      tibble::add_column("Categoria" = out$user_level_label, .after = "Usuário")
+      tibble::add_column("Categoria" = out$user_level_label, .after = "Usu�rio")
   }
   
   public_tbl <- public_tbl %>%
     tibble::add_column(
-      "Início" = out$start_label,
+      "In�cio" = out$start_label,
       "Fim previsto" = out$end_label
     )
   
@@ -276,7 +276,7 @@ public_computer_status_cards_ui <- function(
       ),
       full_name = dplyr::if_else(
         is.na(full_name) | full_name == "",
-        "Usuário não informado",
+        "Usu�rio n�o informado",
         full_name
       )
     )
@@ -328,11 +328,11 @@ public_computer_status_cards_ui <- function(
         
         status_body <- tagList(
           tags$p(
-            tags$strong("Usuário: "),
+            tags$strong("Usu�rio: "),
             current_use$full_name
           ),
           tags$p(
-            tags$strong("Até: "),
+            tags$strong("At�: "),
             format_datetime_label_vector(current_use$end_dt, timezone_value)
           )
         )
@@ -348,16 +348,16 @@ public_computer_status_cards_ui <- function(
         }
       } else {
         badge_class <- "machine-badge machine-free"
-        badge_label <- "Disponível agora"
+        badge_label <- "Dispon�vel agora"
         
         if (nrow(next_use) == 1) {
           status_body <- tagList(
             tags$p(
-              tags$strong("Próxima reserva: "),
+              tags$strong("Pr�xima reserva: "),
               next_use$full_name
             ),
             tags$p(
-              tags$strong("Início: "),
+              tags$strong("In�cio: "),
               format_datetime_label_vector(next_use$start_dt, timezone_value)
             )
           )
@@ -387,7 +387,7 @@ public_computer_status_cards_ui <- function(
         ),
         tags$div(
           class = "public-machine-specs",
-          tags$span(paste0(cores, " núcleos | ", threads, " threads")),
+          tags$span(paste0(cores, " n�cleos | ", threads, " threads")),
           tags$span(paste0(ram_gb, " GB RAM")),
           tags$span(paste0(gpu_memory_gb, " GB GPU"))
         )

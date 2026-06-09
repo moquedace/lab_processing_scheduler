@@ -695,7 +695,7 @@ table.dataTable tbody td {
   border-top: 1px solid var(--border);
 }
 
-/* Paginação do DataTable alinhada à paleta navy (sobrepõe o teal do flatly) */
+/* Pagina��o do DataTable alinhada � paleta navy (sobrep�e o teal do flatly) */
 .dataTables_wrapper .dataTables_paginate .paginate_button,
 .dataTables_wrapper .pagination .page-link {
   color: var(--primary) !important;
@@ -726,7 +726,7 @@ table.dataTable tbody td {
   border-color: var(--border) !important;
 }
 
-/* Botões de ação verdes (Aprovar, Enviar) no verde da página */
+/* Bot�es de a��o verdes (Aprovar, Enviar) no verde da p�gina */
 .btn-success {
   --bs-btn-bg: var(--green);
   --bs-btn-border-color: var(--green);
@@ -743,7 +743,7 @@ table.dataTable tbody td {
   box-shadow: 0 0 0 0.25rem rgba(15, 122, 88, 0.35);
 }
 
-/* Rejeitar: âmbar da página */
+/* Rejeitar: �mbar da p�gina */
 .btn-warning {
   --bs-btn-color: var(--text-light);
   --bs-btn-bg: var(--orange);
@@ -764,7 +764,7 @@ table.dataTable tbody td {
   box-shadow: 0 0 0 0.25rem rgba(165, 91, 18, 0.35);
 }
 
-/* Iniciar uso: navy alinhado à paleta (distinto do Finalizar uso cinza) */
+/* Iniciar uso: navy alinhado � paleta (distinto do Finalizar uso cinza) */
 .btn-info {
   --bs-btn-color: var(--text-light);
   --bs-btn-bg: var(--primary);
