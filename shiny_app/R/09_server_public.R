@@ -31,6 +31,7 @@ register_public_server_outputs <- function(
       options = list(
         pageLength = 10,
         scrollX = TRUE,
+        order = list(),
         language = dt_language_pt
       )
     )
@@ -68,6 +69,7 @@ register_public_server_outputs <- function(
       options = list(
         pageLength = 10,
         scrollX = TRUE,
+        order = list(),
         language = dt_language_pt
       )
     )

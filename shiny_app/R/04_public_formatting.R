@@ -147,7 +147,8 @@ format_public_reservations <- function(
     lists_tbl,
     settings_tbl,
     status_values,
-    include_current = TRUE
+    include_current = TRUE,
+    include_all = FALSE
 ) {
   timezone_value <- get_setting_value(settings_tbl, "timezone", "America/Sao_Paulo")
   now_value <- lubridate::now(tzone = timezone_value)
@@ -171,12 +172,14 @@ format_public_reservations <- function(
       !is.na(end_dt)
     )
   
-  if (include_current) {
-    out <- out %>%
-      dplyr::filter(end_dt >= now_value)
-  } else {
-    out <- out %>%
-      dplyr::filter(start_dt >= now_value)
+  if (!include_all) {
+    if (include_current) {
+      out <- out %>%
+        dplyr::filter(end_dt >= now_value)
+    } else {
+      out <- out %>%
+        dplyr::filter(start_dt >= now_value)
+    }
   }
   
   if (nrow(out) == 0) {

@@ -725,6 +725,37 @@ server <- function(input, output, session) {
       )
     }
     
+    computer_requested_label <- get_label_from_value(
+      lists(), "computer_requested", reservation_tbl$computer_requested
+    )
+    computer_assigned_label <- get_label_from_value(
+      lists(), "computer_assigned", reservation_tbl$computer_assigned
+    )
+    processing_type_label <- get_label_from_value(
+      lists(), "processing_type", reservation_tbl$processing_type
+    )
+    computing_demand_label <- get_label_from_value(
+      lists(), "computing_demand", reservation_tbl$computing_demand
+    )
+    uses_gpu_label <- get_label_from_value(
+      lists(), "yes_no", reservation_tbl$uses_gpu
+    )
+    requires_super_2_label <- get_label_from_value(
+      lists(), "yes_no", reservation_tbl$requires_super_2
+    )
+    status_label <- get_label_from_value(
+      lists(), "reservation_status", reservation_tbl$status
+    )
+
+    status_badge_class <- dplyr::case_when(
+      reservation_tbl$status %in% c("approved", "in_use") ~
+        "preview-status preview-approved",
+      reservation_tbl$status == "pending" ~
+        "preview-status preview-pending",
+      TRUE ~
+        "preview-status preview-neutral"
+    )
+
     tags$div(
       class = "preview-card",
       tags$div(
@@ -733,25 +764,22 @@ server <- function(input, output, session) {
           tags$span(class = "section-kicker", "Revisão administrativa"),
           tags$h3(reservation_tbl$full_name)
         ),
-        tags$div(
-          class = "preview-status preview-pending",
-          reservation_tbl$status
-        )
+        tags$div(class = status_badge_class, status_label)
       ),
       tags$div(
         class = "preview-grid",
         tags$div(tags$span("Reserva"), tags$strong(reservation_tbl$reservation_id)),
         tags$div(tags$span("Categoria"), tags$strong(reservation_tbl$user_level_label)),
-        tags$div(tags$span("Computador solicitado"), tags$strong(reservation_tbl$computer_requested)),
-        tags$div(tags$span("Computador atribuído"), tags$strong(reservation_tbl$computer_assigned)),
+        tags$div(tags$span("Computador solicitado"), tags$strong(computer_requested_label)),
+        tags$div(tags$span("Computador atribuído"), tags$strong(computer_assigned_label)),
         tags$div(tags$span("Início"), tags$strong(reservation_tbl$start_time)),
         tags$div(tags$span("Fim previsto"), tags$strong(reservation_tbl$end_time)),
         tags$div(tags$span("Duração h"), tags$strong(reservation_tbl$estimated_hours)),
         tags$div(tags$span("Prioridade"), tags$strong(reservation_tbl$priority_score)),
-        tags$div(tags$span("Tipo"), tags$strong(reservation_tbl$processing_type)),
-        tags$div(tags$span("Demanda"), tags$strong(reservation_tbl$computing_demand)),
-        tags$div(tags$span("Usa GPU"), tags$strong(reservation_tbl$uses_gpu)),
-        tags$div(tags$span("Exige Super 2"), tags$strong(reservation_tbl$requires_super_2))
+        tags$div(tags$span("Tipo"), tags$strong(processing_type_label)),
+        tags$div(tags$span("Demanda"), tags$strong(computing_demand_label)),
+        tags$div(tags$span("Usa GPU"), tags$strong(uses_gpu_label)),
+        tags$div(tags$span("Exige Super 2"), tags$strong(requires_super_2_label))
       ),
       tags$div(
         class = "preview-reasons",
@@ -1072,24 +1100,34 @@ server <- function(input, output, session) {
         database()$users %>% dplyr::select(user_id, full_name),
         by = "user_id"
       ) %>%
+      dplyr::mutate(
+        computer_label = purrr::map_chr(
+          computer_assigned,
+          ~ get_label_from_value(lists(), "computer_assigned", .x)
+        ),
+        status_label = purrr::map_chr(
+          status,
+          ~ get_label_from_value(lists(), "reservation_status", .x)
+        )
+      ) %>%
       dplyr::arrange(start_time) %>%
       dplyr::select(
         reservation_id,
         full_name,
-        computer_assigned,
+        computer_label,
         start_time,
         end_time,
         estimated_hours,
-        status
+        status_label
       ) %>%
       dplyr::rename(
-        "Reserva"     = reservation_id,
-        "Usuário"     = full_name,
-        "Computador"  = computer_assigned,
-        "Início"      = start_time,
+        "Reserva"      = reservation_id,
+        "Usuário"      = full_name,
+        "Computador"   = computer_label,
+        "Início"       = start_time,
         "Fim previsto" = end_time,
-        "Duração h"   = estimated_hours,
-        "Status"      = status
+        "Duração h"    = estimated_hours,
+        "Status"       = status_label
       )
 
     DT::datatable(
@@ -1107,21 +1145,31 @@ server <- function(input, output, session) {
         database()$users %>% dplyr::select(user_id, full_name),
         by = "user_id"
       ) %>%
+      dplyr::mutate(
+        computer_label = purrr::map_chr(
+          computer_assigned,
+          ~ get_label_from_value(lists(), "computer_assigned", .x)
+        ),
+        status_label = purrr::map_chr(
+          status,
+          ~ get_label_from_value(lists(), "reservation_status", .x)
+        )
+      ) %>%
       dplyr::arrange(dplyr::desc(updated_at)) %>%
       dplyr::select(
         reservation_id,
         full_name,
-        computer_assigned,
+        computer_label,
         start_time,
-        status,
+        status_label,
         admin_notes
       ) %>%
       dplyr::rename(
         "Reserva"    = reservation_id,
         "Usuário"    = full_name,
-        "Computador" = computer_assigned,
+        "Computador" = computer_label,
         "Início"     = start_time,
-        "Status"     = status,
+        "Status"     = status_label,
         "Observação" = admin_notes
       )
 
@@ -1149,18 +1197,24 @@ server <- function(input, output, session) {
   outputOptions(output, "admin_audit_table", suspendWhenHidden = FALSE)
 
   output$reservations_table <- DT::renderDT({
-    # Visão pública: oculta reservas rejeitadas e canceladas.
-    public_reservations <- reservations() %>%
-      dplyr::filter(!status %in% c("rejected", "cancelled"))
-
+    # Visão pública: mostra todas as reservas exceto rejeitadas e canceladas,
+    # sem filtro de data — usa o mesmo formatter que o painel público para
+    # garantir colunas consistentes com os settings configurados.
     DT::datatable(
-      format_reservations_public(public_reservations, database()$users, lists()),
+      format_public_reservations(
+        reservations_tbl = reservations(),
+        users_tbl = database()$users,
+        lists_tbl = lists(),
+        settings_tbl = settings(),
+        status_values = c("pending", "approved", "in_use", "finished"),
+        include_all = TRUE
+      ),
       rownames = FALSE,
       filter = "top",
       options = list(
         pageLength = 10,
         scrollX = TRUE,
-        order = list(list(2, "desc")),
+        order = list(),
         language = dt_language_pt
       )
     )

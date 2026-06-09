@@ -431,6 +431,11 @@ body {
   background: var(--orange-soft);
 }
 
+.preview-neutral {
+  color: var(--text-muted);
+  background: #f1f5f9;
+}
+
 .preview-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
