@@ -1,4 +1,4 @@
-# 08_generate_og_image.R
+# 06b_generate_og_image.R
 # Gera a imagem de preview Open Graph (1200 x 630 px) para a página no GitHub Pages.
 # Salva em: docs/assets/img/og-preview.png
 #
