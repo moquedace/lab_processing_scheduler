@@ -19,6 +19,14 @@ project_root <- if (basename(getwd()) == "scripts") {
   normalizePath(getwd(), winslash = "/", mustWork = TRUE)
 }
 
+# Garante que logos e credencial estejam em shiny_app/ antes de qualquer checagem.
+# O script 04 busca o JSON em secrets/ na raiz e copia para shiny_app/secrets/.
+message("Preparing app files (running 04_prepare_shinyapps_files.R)...")
+source(
+  file.path(project_root, "scripts", "04_prepare_shinyapps_files.R"),
+  local = new.env(parent = globalenv())
+)
+
 app_dir <- file.path(project_root, "shiny_app")
 
 renviron_file <- file.path(app_dir, ".Renviron")
