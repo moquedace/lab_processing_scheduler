@@ -23,6 +23,17 @@ app_dir <- file.path(project_root, "shiny_app")
 
 renviron_file <- file.path(app_dir, ".Renviron")
 
+renviron_candidates <- c(
+  renviron_file,
+  file.path(project_root, ".Renviron")
+)
+
+renviron_source <- renviron_candidates[file.exists(renviron_candidates)][1]
+
+if (!is.na(renviron_source)) {
+  readRenviron(renviron_source)
+}
+
 required_files <- c(
   file.path(app_dir, "app.R"),
   file.path(app_dir, "www", "img", "logo_geocis.png"),
@@ -53,6 +64,26 @@ if (sheet_url == "") {
 
 if (admin_password == "") {
   stop("Set LAB_SCHEDULER_ADMIN_PASSWORD before deploying.")
+}
+
+skip_preflight <- identical(Sys.getenv("LAB_SCHEDULER_DEPLOY_SKIP_PREFLIGHT"), "TRUE")
+
+if (!skip_preflight) {
+  message("\nRunning deployment preflight checks...")
+
+  source(
+    file.path(project_root, "scripts", "01_validate_database.R"),
+    local = new.env(parent = globalenv())
+  )
+
+  source(
+    file.path(project_root, "scripts", "07_test_shiny_app_logic.R"),
+    local = new.env(parent = globalenv())
+  )
+
+  message("\nDeployment preflight checks passed.")
+} else {
+  message("\nDeployment preflight checks skipped by LAB_SCHEDULER_DEPLOY_SKIP_PREFLIGHT=TRUE.")
 }
 
 write_env_line <- function(name, value) {

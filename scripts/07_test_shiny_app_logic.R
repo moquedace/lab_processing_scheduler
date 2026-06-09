@@ -869,20 +869,24 @@ record_test("usage row is created with start time and empty end fields", {
     user_id = "user_1",
     computer_assigned = "super_1",
     actual_start_time = lubridate::ymd_hms("2026-06-15 09:00:00", tz = timezone_value),
-    timezone_value = timezone_value
+    timezone_value = timezone_value,
+    started_by = "admin_test",
+    notes = "start note"
   )
 
   expected_columns <- c(
-    "usage_id", "reservation_id", "user_id", "computer_assigned",
-    "actual_start_time", "actual_end_time", "actual_hours",
-    "finish_reason", "notes"
+    "usage_id", "reservation_id", "user_id", "computer_id",
+    "started_at", "finished_at", "duration_hours",
+    "started_by", "finished_by", "finish_reason", "notes"
   )
 
   expect_equal(names(usage_row), expected_columns, "Usage row columns changed.")
   expect_equal(usage_row$reservation_id, "res_test", "Reservation ID preserved.")
-  expect_equal(usage_row$computer_assigned, "super_1", "Computer preserved.")
-  expect_true(is.na(usage_row$actual_end_time), "End time should be NA on creation.")
-  expect_true(is.na(usage_row$actual_hours), "Actual hours should be NA on creation.")
+  expect_equal(usage_row$computer_id, "super_1", "Computer preserved.")
+  expect_equal(usage_row$started_by, "admin_test", "Starter should be recorded.")
+  expect_equal(usage_row$notes, "start note", "Start note should be recorded.")
+  expect_true(is.na(usage_row$finished_at), "End time should be NA on creation.")
+  expect_true(is.na(usage_row$duration_hours), "Actual hours should be NA on creation.")
   expect_true(nzchar(usage_row$usage_id), "Usage ID should be non-empty.")
 })
 
@@ -891,12 +895,14 @@ record_test("finish usage row updates end time and computes actual hours", {
     usage_id = "use_001",
     reservation_id = "res_test",
     user_id = "user_1",
-    computer_assigned = "super_1",
-    actual_start_time = "2026-06-15 09:00:00",
-    actual_end_time = NA_character_,
-    actual_hours = NA_character_,
+    computer_id = "super_1",
+    started_at = "2026-06-15 09:00:00",
+    finished_at = NA_character_,
+    duration_hours = NA_character_,
+    started_by = "admin_start",
+    finished_by = NA_character_,
     finish_reason = NA_character_,
-    notes = NA_character_
+    notes = "start note"
   )
 
   updated <- test_env$finish_usage_row(
@@ -904,12 +910,16 @@ record_test("finish usage row updates end time and computes actual hours", {
     reservation_id_value = "res_test",
     actual_end_time = lubridate::ymd_hms("2026-06-15 11:30:00", tz = timezone_value),
     finish_reason = "normal",
-    timezone_value = timezone_value
+    timezone_value = timezone_value,
+    finished_by = "admin_finish",
+    notes = "finish note"
   )
 
-  expect_true(!is.na(updated$actual_end_time[1]), "End time should be set after finish.")
-  expect_equal(updated$actual_hours[1], "2.5", "Actual hours should be 2.5h.")
+  expect_true(!is.na(updated$finished_at[1]), "End time should be set after finish.")
+  expect_equal(updated$duration_hours[1], "2.5", "Actual hours should be 2.5h.")
+  expect_equal(updated$finished_by[1], "admin_finish", "Finisher should be recorded.")
   expect_equal(updated$finish_reason[1], "normal", "Finish reason should be set.")
+  expect_equal(updated$notes[1], "finish note", "Finish note should be set.")
 })
 
 record_test("finish usage row is no-op when no open usage row exists", {
@@ -917,10 +927,12 @@ record_test("finish usage row is no-op when no open usage row exists", {
     usage_id = character(),
     reservation_id = character(),
     user_id = character(),
-    computer_assigned = character(),
-    actual_start_time = character(),
-    actual_end_time = character(),
-    actual_hours = character(),
+    computer_id = character(),
+    started_at = character(),
+    finished_at = character(),
+    duration_hours = character(),
+    started_by = character(),
+    finished_by = character(),
     finish_reason = character(),
     notes = character()
   )

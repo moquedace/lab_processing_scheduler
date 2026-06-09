@@ -1,23 +1,17 @@
 pkg <- c(
-  "readxl",
+  "googlesheets4",
+  "gargle",
   "dplyr",
   "purrr",
   "stringr",
   "tibble"
 )
 
-missing_pkg <- pkg[!vapply(pkg, requireNamespace, logical(1), quietly = TRUE)]
-
-if (length(missing_pkg) > 0) {
-  install.packages(missing_pkg)
+project_root <- if (basename(getwd()) == "scripts") {
+  normalizePath(file.path(getwd(), ".."), winslash = "/", mustWork = TRUE)
+} else {
+  normalizePath(getwd(), winslash = "/", mustWork = TRUE)
 }
-
-invisible(lapply(pkg, library, character.only = TRUE))
-
-rm(list = ls())
-gc()
-
-project_root <- getwd()
 
 if (!grepl("lab-processing-scheduler$", project_root)) {
   stop(
@@ -26,15 +20,67 @@ if (!grepl("lab-processing-scheduler$", project_root)) {
   )
 }
 
-database_file <- file.path(
-  project_root,
-  "data",
-  "database",
-  "lab_processing_scheduler_database.xlsx"
+renviron_candidates <- c(
+  file.path(project_root, "shiny_app", ".Renviron"),
+  file.path(project_root, ".Renviron")
 )
 
-if (!file.exists(database_file)) {
-  stop("Database file not found: ", database_file)
+renviron_file <- renviron_candidates[file.exists(renviron_candidates)][1]
+
+if (!is.na(renviron_file)) {
+  readRenviron(renviron_file)
+}
+
+local_library <- file.path(project_root, ".r-lib")
+dir.create(local_library, recursive = TRUE, showWarnings = FALSE)
+.libPaths(c(local_library, .libPaths()))
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
+missing_pkg <- pkg[!vapply(pkg, requireNamespace, logical(1), quietly = TRUE)]
+
+if (length(missing_pkg) > 0) {
+  install.packages(missing_pkg, lib = local_library)
+}
+
+invisible(lapply(pkg, library, character.only = TRUE))
+
+sheet_url <- Sys.getenv("LAB_SCHEDULER_SHEET_URL")
+service_account_json <- Sys.getenv("LAB_SCHEDULER_SERVICE_ACCOUNT_JSON")
+
+if (sheet_url == "") {
+  stop("Set LAB_SCHEDULER_SHEET_URL before validation.")
+}
+
+service_account_candidates <- c(
+  service_account_json,
+  file.path(project_root, "secrets", "google_service_account.json"),
+  file.path(project_root, "shiny_app", "secrets", "google_service_account.json")
+)
+
+service_account_candidates <- service_account_candidates[
+  !is.na(service_account_candidates) &
+    service_account_candidates != ""
+]
+
+service_account_candidates <- normalizePath(
+  service_account_candidates,
+  winslash = "/",
+  mustWork = FALSE
+)
+
+service_account_json <- service_account_candidates[
+  file.exists(service_account_candidates)
+][1]
+
+if (!is.na(service_account_json) && file.exists(service_account_json)) {
+  service_account_token <- gargle::credentials_service_account(
+    path = service_account_json,
+    scopes = "https://www.googleapis.com/auth/spreadsheets"
+  )
+
+  googlesheets4::gs4_auth(token = service_account_token)
+} else {
+  googlesheets4::gs4_auth(email = TRUE)
 }
 
 required_sheets <- c(
@@ -48,7 +94,7 @@ required_sheets <- c(
   "settings"
 )
 
-available_sheets <- readxl::excel_sheets(database_file)
+available_sheets <- googlesheets4::sheet_names(sheet_url)
 
 missing_sheets <- setdiff(required_sheets, available_sheets)
 
@@ -60,12 +106,13 @@ if (length(missing_sheets) > 0) {
 }
 
 read_sheet_clean <- function(sheet_name) {
-  readxl::read_excel(
-    path = database_file,
+  googlesheets4::read_sheet(
+    ss = sheet_url,
     sheet = sheet_name,
-    col_types = "text"
+    col_types = "c"
   ) %>%
     dplyr::rename_with(stringr::str_trim) %>%
+    dplyr::select(!dplyr::matches("^\\.\\.\\.[0-9]+$")) %>%
     dplyr::mutate(
       dplyr::across(
         dplyr::everything(),

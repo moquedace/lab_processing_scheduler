@@ -72,7 +72,7 @@ if (!is.na(service_account_json) && file.exists(service_account_json)) {
     path = service_account_json,
     scopes = "https://www.googleapis.com/auth/spreadsheets"
   )
-  
+
   googlesheets4::gs4_auth(
     token = service_account_token
   )
@@ -108,32 +108,37 @@ if (nrow(test_user) != 1) {
   stop("No active user with user_id and email was found in the users sheet.")
 }
 
-test_marker <- paste0(
-  "AUTOMATED_TEST_",
-  format(Sys.time(), "%Y%m%d_%H%M%S")
-)
-
 auto_cleanup <- !identical(Sys.getenv("LAB_SCHEDULER_UI_TEST_AUTO_CLEANUP"), "FALSE")
-
-Sys.setenv(
-  LAB_SCHEDULER_UI_TEST_USER_ID = test_user$user_id[1],
-  LAB_SCHEDULER_UI_TEST_EMAIL = test_user$email[1],
-  LAB_SCHEDULER_UI_TEST_WRITE = "TRUE",
-  LAB_SCHEDULER_UI_TEST_MARKER = test_marker
+max_attempts <- suppressWarnings(
+  as.integer(Sys.getenv("LAB_SCHEDULER_UI_TEST_ATTEMPTS", unset = "3"))
 )
+
+if (is.na(max_attempts) || max_attempts < 1) {
+  max_attempts <- 3L
+}
+
+cleanup_test_marker <- function(marker_value) {
+  if (!auto_cleanup || is.na(marker_value) || marker_value == "") {
+    return(invisible(NULL))
+  }
+
+  Sys.setenv(
+    LAB_SCHEDULER_TEST_CLEANUP_MARKER = marker_value,
+    LAB_SCHEDULER_TEST_CLEANUP_CONFIRM = "TRUE"
+  )
+
+  try(
+    source(file.path(project_root, "scripts", "09_cleanup_shiny_test_rows.R")),
+    silent = FALSE
+  )
+
+  invisible(NULL)
+}
 
 if (auto_cleanup) {
   on.exit(
     {
-      Sys.setenv(
-        LAB_SCHEDULER_TEST_CLEANUP_MARKER = test_marker,
-        LAB_SCHEDULER_TEST_CLEANUP_CONFIRM = "TRUE"
-      )
-      
-      try(
-        source(file.path(project_root, "scripts", "09_cleanup_shiny_test_rows.R")),
-        silent = FALSE
-      )
+      cleanup_test_marker(Sys.getenv("LAB_SCHEDULER_UI_TEST_MARKER"))
     },
     add = TRUE
   )
@@ -142,8 +147,8 @@ if (auto_cleanup) {
 message("\nSelected UI test user:")
 message("Name: ", test_user$full_name[1])
 message("User ID: ", test_user$user_id[1])
-message("Marker: ", test_marker)
 message("Auto cleanup: ", auto_cleanup)
+message("UI test attempts: ", max_attempts)
 
 rscript <- file.path(R.home("bin"), "Rscript.exe")
 
@@ -152,8 +157,42 @@ if (!file.exists(rscript)) {
 }
 
 test_script <- file.path(project_root, "scripts", "08_test_shiny_ui.R")
-status <- system2(rscript, test_script)
+status <- 1L
+
+for (attempt in seq_len(max_attempts)) {
+  test_marker <- paste0(
+    "AUTOMATED_TEST_",
+    format(Sys.time(), "%Y%m%d_%H%M%S"),
+    "_try",
+    attempt
+  )
+
+  Sys.setenv(
+    LAB_SCHEDULER_UI_TEST_USER_ID = test_user$user_id[1],
+    LAB_SCHEDULER_UI_TEST_EMAIL = test_user$email[1],
+    LAB_SCHEDULER_UI_TEST_WRITE = "TRUE",
+    LAB_SCHEDULER_UI_TEST_MARKER = test_marker
+  )
+
+  message("\nUI test attempt ", attempt, " of ", max_attempts)
+  message("Marker: ", test_marker)
+
+  status <- system2(rscript, test_script)
+
+  if (identical(status, 0L)) {
+    break
+  }
+
+  message("\nUI test attempt failed with status: ", status)
+  cleanup_test_marker(test_marker)
+
+  if (attempt < max_attempts) {
+    Sys.sleep(5)
+  }
+}
 
 if (!identical(status, 0L)) {
-  stop("Shiny UI test failed with status: ", status)
+  stop("Shiny UI test failed after ", max_attempts, " attempt(s). Last status: ", status)
 }
+
+cleanup_test_marker(Sys.getenv("LAB_SCHEDULER_UI_TEST_MARKER"))

@@ -132,21 +132,16 @@ row_has_marker <- function(tbl, columns, marker) {
     return(rep(FALSE, nrow(tbl)))
   }
   
-  marker_matrix <- vapply(
+  marker_matches <- lapply(
     available_columns,
     function(column_name) {
       values <- tbl[[column_name]]
       values <- ifelse(is.na(values), "", values)
       stringr::str_detect(values, stringr::fixed(marker))
-    },
-    logical(nrow(tbl))
+    }
   )
   
-  if (is.null(dim(marker_matrix))) {
-    return(marker_matrix)
-  }
-  
-  rowSums(marker_matrix) > 0
+  Reduce(`|`, marker_matches, init = rep(FALSE, nrow(tbl)))
 }
 
 cleanup_specs <- list(

@@ -9,7 +9,7 @@ format_datetime_pt <- function(datetime_value, timezone_value = "America/Sao_Pau
   if (is.null(datetime_value) || is.na(datetime_value)) {
     return("")
   }
-  
+
   format(
     lubridate::with_tz(datetime_value, timezone_value),
     "%Y-%m-%d %H:%M:%S"
@@ -20,7 +20,7 @@ format_datetime_label_pt <- function(datetime_value, timezone_value = "America/S
   if (is.null(datetime_value) || is.na(datetime_value)) {
     return("")
   }
-  
+
   format(
     lubridate::with_tz(datetime_value, timezone_value),
     "%d/%m/%Y %H:%M"
@@ -37,7 +37,7 @@ check_reservation_conflict <- function(
   if (nrow(reservations_tbl) == 0) {
     return(FALSE)
   }
-  
+
   reservations_clean <- reservations_tbl %>%
     dplyr::filter(
       status %in% c("approved", "in_use"),
@@ -51,11 +51,11 @@ check_reservation_conflict <- function(
       start_time_parsed = lubridate::ymd_hms(start_time, tz = timezone_value, quiet = TRUE),
       end_time_parsed = lubridate::ymd_hms(end_time, tz = timezone_value, quiet = TRUE)
     )
-  
+
   if (nrow(reservations_clean) == 0) {
     return(FALSE)
   }
-  
+
   any(
     reservations_clean$start_time_parsed < end_time_value &
       reservations_clean$end_time_parsed > start_time_value,
@@ -72,14 +72,14 @@ get_computer_preference_order <- function(computers_tbl = NULL, computing_demand
       "large_data",
       "deep_learning"
     )
-    
+
     if (computing_demand %in% intensive_demands) {
       return(c("super_2", "super_1"))
     }
-    
+
     return(c("super_1", "super_2"))
   }
-  
+
   available_computers <- computers_tbl %>%
     dplyr::filter(status == "active", can_be_booked == "TRUE") %>%
     dplyr::mutate(
@@ -92,11 +92,11 @@ get_computer_preference_order <- function(computers_tbl = NULL, computing_demand
         dplyr::coalesce(ram_gb_num, 0) * 0.5 +
         dplyr::coalesce(gpu_memory_gb_num, 0) * 2
     )
-  
+
   if (nrow(available_computers) == 0) {
     return(character(0))
   }
-  
+
   intensive_demands <- c(
     "cpu_intensive",
     "ram_intensive",
@@ -104,7 +104,7 @@ get_computer_preference_order <- function(computers_tbl = NULL, computing_demand
     "large_data",
     "deep_learning"
   )
-  
+
   if (computing_demand %in% intensive_demands) {
     available_computers <- available_computers %>%
       dplyr::arrange(dplyr::desc(resource_score), computer_id)
@@ -112,7 +112,7 @@ get_computer_preference_order <- function(computers_tbl = NULL, computing_demand
     available_computers <- available_computers %>%
       dplyr::arrange(resource_score, computer_id)
   }
-  
+
   available_computers$computer_id
 }
 
@@ -129,11 +129,11 @@ suggest_computer_assignment <- function(
     computers_tbl = computers_tbl,
     computing_demand = computing_demand
   )
-  
+
   if (length(computer_order) == 0) {
-    stop("Nenhum computador ativo e reservável foi encontrado.")
+    stop("Nenhum computador ativo e reservÃ¡vel foi encontrado.")
   }
-  
+
   if (computer_requested %in% computer_order) {
     return(computer_requested)
   }
@@ -146,12 +146,12 @@ suggest_computer_assignment <- function(
       end_time_value = end_time_value,
       timezone_value = timezone_value
     )
-    
+
     if (!has_conflict) {
       return(computer_id_value)
     }
   }
-  
+
   computer_order[1]
 }
 
@@ -165,61 +165,61 @@ decide_approval_mode <- function(
 ) {
   manual_user_levels <- get_setting_vector(settings_tbl, "manual_approval_user_levels")
   manual_above_hours <- get_setting_numeric(settings_tbl, "manual_approval_above_hours", 24)
-  
+
   manual_if_requires_super_2 <- get_setting_logical(
     settings_tbl,
     "manual_approval_if_requires_super_2",
     TRUE
   )
-  
+
   manual_if_conflict <- get_setting_logical(
     settings_tbl,
     "manual_approval_if_conflict",
     TRUE
   )
-  
+
   manual_if_unknown_demand <- get_setting_logical(
     settings_tbl,
     "manual_approval_if_unknown_demand",
     TRUE
   )
-  
+
   reasons <- character(0)
-  
+
   if (user_level %in% manual_user_levels) {
-    reasons <- c(reasons, "categoria exige aprovação manual")
+    reasons <- c(reasons, "categoria exige aprovaÃ§Ã£o manual")
   }
-  
+
   if (!is.na(manual_above_hours) && estimated_hours > manual_above_hours) {
-    reasons <- c(reasons, "duração acima do limite de aprovação automática")
+    reasons <- c(reasons, "duraÃ§Ã£o acima do limite de aprovaÃ§Ã£o automÃ¡tica")
   }
-  
+
   if (manual_if_requires_super_2 && requires_super_2 == "yes") {
-    reasons <- c(reasons, "uso obrigatório do Super 2")
+    reasons <- c(reasons, "uso obrigatÃ³rio do Super 2")
   }
-  
+
   if (manual_if_conflict && has_conflict) {
-    reasons <- c(reasons, "conflito de horário")
+    reasons <- c(reasons, "conflito de horÃ¡rio")
   }
-  
+
   if (manual_if_unknown_demand && computing_demand == "unknown") {
     reasons <- c(reasons, "demanda computacional desconhecida")
   }
-  
+
   if (length(reasons) > 0) {
     return(list(mode = "manual", reasons = reasons))
   }
-  
-  list(mode = "automatic", reasons = "atende aos critérios de aprovação automática")
+
+  list(mode = "automatic", reasons = "atende aos critÃ©rios de aprovaÃ§Ã£o automÃ¡tica")
 }
 
 decide_reservation_status <- function(approval_mode, settings_tbl) {
   allow_auto_approval <- get_setting_logical(settings_tbl, "allow_auto_approval", TRUE)
-  
+
   if (approval_mode == "automatic" && allow_auto_approval) {
     return(get_setting_value(settings_tbl, "default_auto_approved_status", "approved"))
   }
-  
+
   get_setting_value(settings_tbl, "default_manual_approval_status", "pending")
 }
 
@@ -243,7 +243,7 @@ generate_log_id <- function() {
 
 create_reservation_row <- function(preview, timezone_value) {
   now_value <- lubridate::now(tzone = timezone_value)
-  
+
   tibble::tibble(
     reservation_id = generate_reservation_id(),
     created_at = format_datetime_pt(now_value, timezone_value),
@@ -291,7 +291,7 @@ create_audit_row <- function(
     timezone_value
 ) {
   now_value <- lubridate::now(tzone = timezone_value)
-  
+
   tibble::tibble(
     log_id = generate_log_id(),
     event_time = format_datetime_pt(now_value, timezone_value),
@@ -319,18 +319,22 @@ create_usage_row <- function(
     user_id,
     computer_assigned,
     actual_start_time,
-    timezone_value
+    timezone_value,
+    started_by = "admin",
+    notes = NA_character_
 ) {
   tibble::tibble(
     usage_id = generate_usage_id(),
     reservation_id = reservation_id,
     user_id = user_id,
-    computer_assigned = computer_assigned,
-    actual_start_time = format_datetime_pt(actual_start_time, timezone_value),
-    actual_end_time = NA_character_,
-    actual_hours = NA_character_,
+    computer_id = computer_assigned,
+    started_at = format_datetime_pt(actual_start_time, timezone_value),
+    finished_at = NA_character_,
+    duration_hours = NA_character_,
+    started_by = started_by,
+    finished_by = NA_character_,
     finish_reason = NA_character_,
-    notes = NA_character_
+    notes = notes
   )
 }
 
@@ -339,14 +343,41 @@ finish_usage_row <- function(
     reservation_id_value,
     actual_end_time,
     finish_reason,
-    timezone_value
+    timezone_value,
+    finished_by = "admin",
+    notes = NA_character_
 ) {
   usage_log_tbl <- usage_log_tbl %>%
     dplyr::mutate(dplyr::across(dplyr::everything(), ~ as.character(.x)))
 
+  if (!"started_at" %in% names(usage_log_tbl) && "actual_start_time" %in% names(usage_log_tbl)) {
+    usage_log_tbl$started_at <- usage_log_tbl$actual_start_time
+  }
+
+  if (!"finished_at" %in% names(usage_log_tbl) && "actual_end_time" %in% names(usage_log_tbl)) {
+    usage_log_tbl$finished_at <- usage_log_tbl$actual_end_time
+  }
+
+  required_usage_columns <- c(
+    "computer_id",
+    "started_at",
+    "finished_at",
+    "duration_hours",
+    "started_by",
+    "finished_by",
+    "finish_reason",
+    "notes"
+  )
+
+  for (column_name in required_usage_columns) {
+    if (!column_name %in% names(usage_log_tbl)) {
+      usage_log_tbl[[column_name]] <- NA_character_
+    }
+  }
+
   row_id <- which(
     usage_log_tbl$reservation_id == reservation_id_value &
-      (is.na(usage_log_tbl$actual_end_time) | usage_log_tbl$actual_end_time == "")
+      (is.na(usage_log_tbl$finished_at) | usage_log_tbl$finished_at == "")
   )
 
   if (length(row_id) == 0) {
@@ -354,7 +385,7 @@ finish_usage_row <- function(
   }
 
   start_parsed <- lubridate::ymd_hms(
-    usage_log_tbl$actual_start_time[row_id[1]],
+    usage_log_tbl$started_at[row_id[1]],
     tz = timezone_value,
     quiet = TRUE
   )
@@ -370,9 +401,14 @@ finish_usage_row <- function(
     NA_character_
   }
 
-  usage_log_tbl$actual_end_time[row_id[1]] <- format_datetime_pt(actual_end_time, timezone_value)
-  usage_log_tbl$actual_hours[row_id[1]] <- actual_h
+  usage_log_tbl$finished_at[row_id[1]] <- format_datetime_pt(actual_end_time, timezone_value)
+  usage_log_tbl$duration_hours[row_id[1]] <- actual_h
+  usage_log_tbl$finished_by[row_id[1]] <- finished_by
   usage_log_tbl$finish_reason[row_id[1]] <- finish_reason
+
+  if (!is.na(notes)) {
+    usage_log_tbl$notes[row_id[1]] <- notes
+  }
 
   usage_log_tbl
 }
@@ -389,7 +425,7 @@ update_reservation_status <- function(
     lubridate::now(tzone = timezone_value),
     timezone_value
   )
-  
+
   reservations_tbl <- reservations_tbl %>%
     dplyr::mutate(
       dplyr::across(
@@ -397,39 +433,39 @@ update_reservation_status <- function(
         ~ as.character(.x)
       )
     )
-  
+
   row_id <- which(reservations_tbl$reservation_id == reservation_id_value)
-  
+
   if (length(row_id) != 1) {
-    stop("Reserva não encontrada ou identificador duplicado.")
+    stop("Reserva nÃ£o encontrada ou identificador duplicado.")
   }
-  
+
   old_status <- reservations_tbl$status[row_id]
 
   reservations_tbl$status[row_id] <- new_status
   reservations_tbl$updated_at[row_id] <- now_text
 
-  # Só sobrescreve a observação quando uma nova é informada, para não apagar
+  # SÃ³ sobrescreve a observaÃ§Ã£o quando uma nova Ã© informada, para nÃ£o apagar
   # notas anteriores ao iniciar ou finalizar o uso sem digitar nada.
   if (!is.na(admin_notes_value)) {
     reservations_tbl$admin_notes[row_id] <- admin_notes_value
   }
-  
+
   if (new_status == "approved") {
     reservations_tbl$approved_by[row_id] <- admin_user
     reservations_tbl$approved_at[row_id] <- now_text
   }
-  
+
   if (new_status == "rejected") {
     reservations_tbl$rejected_by[row_id] <- admin_user
     reservations_tbl$rejected_at[row_id] <- now_text
   }
-  
+
   if (new_status == "cancelled") {
     reservations_tbl$cancelled_by[row_id] <- admin_user
     reservations_tbl$cancelled_at[row_id] <- now_text
   }
-  
+
   list(
     reservations_tbl = reservations_tbl,
     old_status = old_status,

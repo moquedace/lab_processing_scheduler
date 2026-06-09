@@ -1,5 +1,28 @@
+project_root <- if (basename(getwd()) == "scripts") {
+  normalizePath(file.path(getwd(), ".."), winslash = "/", mustWork = TRUE)
+} else {
+  normalizePath(getwd(), winslash = "/", mustWork = TRUE)
+}
+
+renviron_candidates <- c(
+  file.path(project_root, "shiny_app", ".Renviron"),
+  file.path(project_root, ".Renviron")
+)
+
+renviron_file <- renviron_candidates[file.exists(renviron_candidates)][1]
+
+if (!is.na(renviron_file)) {
+  readRenviron(renviron_file)
+}
+
+local_library <- file.path(project_root, ".r-lib")
+dir.create(local_library, recursive = TRUE, showWarnings = FALSE)
+.libPaths(c(local_library, .libPaths()))
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
 pkg <- c(
   "googlesheets4",
+  "gargle",
   "dplyr",
   "purrr",
   "stringr",
@@ -10,25 +33,38 @@ pkg <- c(
 missing_pkg <- pkg[!vapply(pkg, requireNamespace, logical(1), quietly = TRUE)]
 
 if (length(missing_pkg) > 0) {
-  install.packages(missing_pkg)
+  install.packages(missing_pkg, lib = local_library)
 }
 
 invisible(lapply(pkg, library, character.only = TRUE))
 
-rm(list = ls())
-gc()
-
-project_root <- if (basename(getwd()) == "scripts") {
-  normalizePath(file.path(getwd(), ".."), winslash = "/", mustWork = TRUE)
-} else {
-  normalizePath(getwd(), winslash = "/", mustWork = TRUE)
-}
-
 sheet_url <- Sys.getenv("LAB_SCHEDULER_SHEET_URL")
+service_account_json <- Sys.getenv("LAB_SCHEDULER_SERVICE_ACCOUNT_JSON")
 
 if (sheet_url == "") {
   stop("Set LAB_SCHEDULER_SHEET_URL with your Google Sheets URL before running this script.")
 }
+
+service_account_candidates <- c(
+  service_account_json,
+  file.path(project_root, "secrets", "google_service_account.json"),
+  file.path(project_root, "shiny_app", "secrets", "google_service_account.json")
+)
+
+service_account_candidates <- service_account_candidates[
+  !is.na(service_account_candidates) &
+    service_account_candidates != ""
+]
+
+service_account_candidates <- normalizePath(
+  service_account_candidates,
+  winslash = "/",
+  mustWork = FALSE
+)
+
+service_account_json <- service_account_candidates[
+  file.exists(service_account_candidates)
+][1]
 
 expected_sheets <- c(
   "users",
@@ -123,14 +159,13 @@ required_columns <- list(
     "reservation_id",
     "user_id",
     "computer_id",
-    "actual_start_time",
-    "actual_end_time",
-    "actual_hours",
+    "started_at",
+    "finished_at",
+    "duration_hours",
+    "started_by",
+    "finished_by",
     "finish_reason",
-    "status",
-    "notes",
-    "created_at",
-    "updated_at"
+    "notes"
   ),
   audit_log = c(
     "log_id",
@@ -172,16 +207,16 @@ read_sheet_clean <- function(sheet_name) {
 check_required_columns <- function(sheet_name, sheet_tbl, required_columns) {
   required <- required_columns[[sheet_name]]
   current <- names(sheet_tbl)
-  
+
   required <- required[!is.na(required) & required != ""]
   current <- current[!is.na(current) & current != ""]
-  
+
   missing_columns <- setdiff(required, current)
   extra_columns <- setdiff(current, required)
-  
+
   missing_text <- paste(missing_columns, collapse = ", ")
   extra_text <- paste(extra_columns, collapse = ", ")
-  
+
   status_value <- if (length(missing_columns) == 0) {
     "ok"
   } else if (sheet_name == "usage_log") {
@@ -189,7 +224,7 @@ check_required_columns <- function(sheet_name, sheet_tbl, required_columns) {
   } else {
     "error"
   }
-  
+
   tibble::tibble(
     sheet = sheet_name,
     missing_columns = missing_text,
@@ -211,15 +246,15 @@ append_connection_test <- function(sheet_url) {
     test_user = Sys.info()[["user"]],
     test_note = "Google Sheets connection test from R"
   )
-  
+
   available_sheets <- googlesheets4::sheet_names(sheet_url)
-  
+
   if (!"connection_test" %in% available_sheets) {
     googlesheets4::sheet_add(
       ss = sheet_url,
       sheet = "connection_test"
     )
-    
+
     googlesheets4::range_write(
       ss = sheet_url,
       data = test_row,
@@ -235,12 +270,24 @@ append_connection_test <- function(sheet_url) {
       sheet = "connection_test"
     )
   }
-  
+
   test_row
 }
 
 message("\nAuthenticating with Google Sheets...")
-googlesheets4::gs4_auth(email = TRUE)
+
+if (!is.na(service_account_json) && file.exists(service_account_json)) {
+  service_account_token <- gargle::credentials_service_account(
+    path = service_account_json,
+    scopes = "https://www.googleapis.com/auth/spreadsheets"
+  )
+
+  googlesheets4::gs4_auth(token = service_account_token)
+  message("Using service account: ", service_account_json)
+} else {
+  googlesheets4::gs4_auth(email = TRUE)
+  message("Using interactive Google account authentication.")
+}
 
 message("\nChecking sheet names...")
 available_sheets <- googlesheets4::sheet_names(sheet_url)

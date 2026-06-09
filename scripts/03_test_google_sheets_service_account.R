@@ -1,3 +1,25 @@
+project_root <- if (basename(getwd()) == "scripts") {
+  normalizePath(file.path(getwd(), ".."), winslash = "/", mustWork = TRUE)
+} else {
+  normalizePath(getwd(), winslash = "/", mustWork = TRUE)
+}
+
+renviron_candidates <- c(
+  file.path(project_root, "shiny_app", ".Renviron"),
+  file.path(project_root, ".Renviron")
+)
+
+renviron_file <- renviron_candidates[file.exists(renviron_candidates)][1]
+
+if (!is.na(renviron_file)) {
+  readRenviron(renviron_file)
+}
+
+local_library <- file.path(project_root, ".r-lib")
+dir.create(local_library, recursive = TRUE, showWarnings = FALSE)
+.libPaths(c(local_library, .libPaths()))
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
 pkg <- c(
   "googlesheets4",
   "dplyr",
@@ -11,19 +33,10 @@ pkg <- c(
 missing_pkg <- pkg[!vapply(pkg, requireNamespace, logical(1), quietly = TRUE)]
 
 if (length(missing_pkg) > 0) {
-  install.packages(missing_pkg)
+  install.packages(missing_pkg, lib = local_library)
 }
 
 invisible(lapply(pkg, library, character.only = TRUE))
-
-rm(list = ls())
-gc()
-
-project_root <- if (basename(getwd()) == "scripts") {
-  normalizePath(file.path(getwd(), ".."), winslash = "/", mustWork = TRUE)
-} else {
-  normalizePath(getwd(), winslash = "/", mustWork = TRUE)
-}
 
 sheet_url <- Sys.getenv("LAB_SCHEDULER_SHEET_URL")
 
@@ -33,25 +46,32 @@ if (sheet_url == "") {
 
 service_account_json <- Sys.getenv("LAB_SCHEDULER_SERVICE_ACCOUNT_JSON")
 
-if (service_account_json == "") {
-  service_account_json <- file.path(
-    project_root,
-    "secrets",
-    "google_service_account.json"
-  )
-}
-
-service_account_json <- normalizePath(
+service_account_candidates <- c(
   service_account_json,
+  file.path(project_root, "secrets", "google_service_account.json"),
+  file.path(project_root, "shiny_app", "secrets", "google_service_account.json")
+)
+
+service_account_candidates <- service_account_candidates[
+  !is.na(service_account_candidates) &
+    service_account_candidates != ""
+]
+
+service_account_candidates <- normalizePath(
+  service_account_candidates,
   winslash = "/",
   mustWork = FALSE
 )
 
-if (!file.exists(service_account_json)) {
+service_account_json <- service_account_candidates[
+  file.exists(service_account_candidates)
+][1]
+
+if (is.na(service_account_json) || !file.exists(service_account_json)) {
   stop(
     paste(
-      "Service account JSON file not found:",
-      service_account_json
+      "Service account JSON file not found in:",
+      paste(service_account_candidates, collapse = "\n")
     )
   )
 }
@@ -149,14 +169,13 @@ required_columns <- list(
     "reservation_id",
     "user_id",
     "computer_id",
-    "actual_start_time",
-    "actual_end_time",
-    "actual_hours",
+    "started_at",
+    "finished_at",
+    "duration_hours",
+    "started_by",
+    "finished_by",
     "finish_reason",
-    "status",
-    "notes",
-    "created_at",
-    "updated_at"
+    "notes"
   ),
   audit_log = c(
     "log_id",

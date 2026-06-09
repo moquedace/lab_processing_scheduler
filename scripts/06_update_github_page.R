@@ -196,7 +196,7 @@ html_content <- paste0(
   <meta property="og:type"         content="website">
   <meta property="og:url"          content="https://moquedace.github.io/lab-processing-scheduler/">
   <meta property="og:title"        content="Reserva dos Computadores de Processamento | GeoCiS">
-  <meta property="og:description"  content="Portal institucional para reserva das estações de processamento do Grupo de Geotecnologias em Ciência do Solo, ESALQ/USP.">
+  <meta property="og:description"  content="Portal institucional para reserva das estações de processamento do Grupo de Geotecnologias em Ciência do Solo, ESALQ/USP.">
   <meta property="og:image"        content="https://moquedace.github.io/lab-processing-scheduler/assets/img/og-preview.png">
   <meta property="og:image:width"  content="1200">
   <meta property="og:image:height" content="630">
@@ -206,7 +206,7 @@ html_content <- paste0(
   <!-- Twitter / X Card -->
   <meta name="twitter:card"        content="summary_large_image">
   <meta name="twitter:title"       content="Reserva dos Computadores de Processamento | GeoCiS">
-  <meta name="twitter:description" content="Portal institucional para reserva das estações de processamento do Grupo de Geotecnologias em Ciência do Solo, ESALQ/USP.">
+  <meta name="twitter:description" content="Portal institucional para reserva das estações de processamento do Grupo de Geotecnologias em Ciência do Solo, ESALQ/USP.">
   <meta name="twitter:image"       content="https://moquedace.github.io/lab-processing-scheduler/assets/img/og-preview.png">
 
   <style>

@@ -50,38 +50,40 @@ Google Sheets
 
 ```
 lab-processing-scheduler/
-├── docs/                        # GitHub Pages (gerado por scripts/06)
-│   ├── index.html
-│   └── assets/
-│       ├── css/
-│       └── img/                 # logos + og-preview.png
-├── scripts/                     # utilitários e deploy
-│   ├── 01_validate_database.R
-│   ├── 02_test_google_sheets_connection.R
-│   ├── 03_test_google_sheets_service_account.R
-│   ├── 04_prepare_shinyapps_files.R
-│   ├── 05_deploy_shinyapps.R
-│   ├── 06_update_github_page.R
-│   ├── 07_test_shiny_app_logic.R
-│   ├── 08_generate_og_image.R
-│   ├── 08_test_shiny_ui.R
-│   ├── 09_cleanup_shiny_test_rows.R
-│   └── 10_run_ui_test_with_first_user.R
-├── shiny_app/
-│   ├── app.R                    # servidor principal
-│   ├── R/                       # módulos (carregados pelo app.R)
-│   │   ├── 01_sheets.R
-│   │   ├── 02_settings_lists.R
-│   │   ├── 03_priority.R
-│   │   ├── 04_public_formatting.R
-│   │   ├── 05_reservations.R
-│   │   ├── 06_ui_components.R
-│   │   ├── 07_theme.R
-│   │   ├── 08_ui.R
-│   │   └── 09_server_public.R
-│   ├── www/img/                 # logos servidos pelo Shiny
-│   └── secrets/                 # ← nunca vai ao Git (ver .gitignore)
-└── .gitignore
+|-- docs/                        # GitHub Pages (gerado por scripts/06)
+|   |-- index.html
+|   `-- assets/
+|       |-- css/
+|       `-- img/                 # logos + og-preview.png
+|-- scripts/                     # utilitários, testes e deploy
+|   |-- 01_validate_database.R
+|   |-- 02_test_google_sheets_connection.R
+|   |-- 03_test_google_sheets_service_account.R
+|   |-- 04_prepare_shinyapps_files.R
+|   |-- 05_deploy_shinyapps.R
+|   |-- 06_update_github_page.R
+|   |-- 07_test_shiny_app_logic.R
+|   |-- 08_generate_og_image.R
+|   |-- 08_test_shiny_ui.R
+|   |-- 09_cleanup_shiny_test_rows.R
+|   |-- 10_run_ui_test_with_first_user.R
+|   |-- 11_migrate_usage_log_schema.R
+|   `-- 12_run_regression_suite.R
+|-- shiny_app/
+|   |-- app.R                    # servidor principal
+|   |-- R/                       # módulos carregados pelo app.R
+|   |   |-- 01_sheets.R
+|   |   |-- 02_settings_lists.R
+|   |   |-- 03_priority.R
+|   |   |-- 04_public_formatting.R
+|   |   |-- 05_reservations.R
+|   |   |-- 06_ui_components.R
+|   |   |-- 07_theme.R
+|   |   |-- 08_ui.R
+|   |   `-- 09_server_public.R
+|   |-- www/img/                 # logos servidos pelo Shiny
+|   `-- secrets/                 # nunca vai ao Git (ver .gitignore)
+`-- .gitignore
 ```
 
 ---
@@ -114,9 +116,11 @@ lab-processing-scheduler/
 | `06_update_github_page.R` | Regenerar `docs/index.html` a partir do template R |
 | `07_test_shiny_app_logic.R` | Suite de testes de lógica pura (21 casos, sem credenciais) |
 | `08_generate_og_image.R` | Gerar imagem de preview Open Graph (1200×630 px) |
-| `08_test_shiny_ui.R` | Testes de jornada UI com `shinytest2` (requer credenciais) |
+| `08_test_shiny_ui.R` | Testes de jornada UI/admin com `shinytest2`, incluindo início/fim de uso (requer credenciais) |
 | `09_cleanup_shiny_test_rows.R` | Remover linhas de teste do Google Sheets |
 | `10_run_ui_test_with_first_user.R` | Executar teste UI completo com o primeiro usuário ativo |
+| `11_migrate_usage_log_schema.R` | Migrar `usage_log` do schema antigo para o schema de início/fim de uso |
+| `12_run_regression_suite.R` | Rodar validação do banco, testes de lógica e jornada UI em sequência |
 
 ---
 
@@ -216,3 +220,30 @@ Desenvolvido para o **GeoCiS — Grupo de Geotecnologias em Ciência do Solo**
 Departamento de Ciência do Solo · ESALQ · Universidade de São Paulo  
 
 Com apoio da **FAPESP**.
+
+---
+
+## Comando principal de teste
+
+```r
+source("scripts/12_run_regression_suite.R")
+```
+
+Esse runner executa validação do Google Sheets, testes de lógica e jornada UI/admin
+com limpeza automática das linhas criadas pelo teste.
+
+---
+
+## Checklist de publicação
+
+```r
+source("scripts/12_run_regression_suite.R")
+source("scripts/04_prepare_shinyapps_files.R")
+source("scripts/05_deploy_shinyapps.R")
+source("scripts/06_update_github_page.R")
+source("scripts/08_generate_og_image.R")
+```
+
+Depois disso, revisar `docs/index.html`, `docs/assets/img/og-preview.png` e fazer
+commit/push para atualizar o GitHub Pages. O deploy do Shiny usa preflight por
+padrão e só deve ser pulado com `LAB_SCHEDULER_DEPLOY_SKIP_PREFLIGHT=TRUE`.

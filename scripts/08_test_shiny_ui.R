@@ -96,7 +96,7 @@ if (!is.na(service_account_json) && file.exists(service_account_json)) {
     path = service_account_json,
     scopes = "https://www.googleapis.com/auth/spreadsheets"
   )
-  
+
   googlesheets4::gs4_auth(token = service_account_token)
 } else {
   googlesheets4::gs4_auth(email = TRUE)
@@ -106,6 +106,17 @@ message("\nStarting Shiny UI journey test.")
 message("App directory: ", app_dir)
 message("Write actions enabled: ", allow_write)
 message("Test marker: ", test_marker)
+
+chromote_timeout <- suppressWarnings(
+  as.numeric(Sys.getenv("LAB_SCHEDULER_CHROMOTE_TIMEOUT", unset = "60"))
+)
+
+if (is.na(chromote_timeout) || chromote_timeout < 10) {
+  chromote_timeout <- 60
+}
+
+options(chromote.timeout = chromote_timeout)
+message("Chromote startup timeout: ", chromote_timeout, "s")
 
 app <- shinytest2::AppDriver$new(
   app_dir = app_dir,
@@ -128,7 +139,7 @@ wait_for_app <- function(seconds = 1) {
   if (seconds > 0) {
     Sys.sleep(seconds)
   }
-  
+
   invisible(TRUE)
 }
 
@@ -139,14 +150,14 @@ dump_app_logs <- function(stage) {
       list(list(type = "log_error", message = conditionMessage(e)))
     }
   )
-  
+
   if (length(logs) == 0) {
     message("\nNo app logs available during ", stage, ".")
     return(invisible(NULL))
   }
-  
+
   message("\nApp logs during ", stage, ":")
-  
+
   if (is.data.frame(logs)) {
     for (row_id in seq_len(nrow(logs))) {
       log_type <- if ("level" %in% names(logs)) logs$level[row_id] else "unknown"
@@ -156,13 +167,13 @@ dump_app_logs <- function(stage) {
       } else {
         paste(logs[row_id, ], collapse = " ")
       }
-      
+
       message("[", log_source, "/", log_type, "] ", log_message)
     }
-    
+
     return(invisible(NULL))
   }
-  
+
   for (log_item in logs) {
     if (is.list(log_item)) {
       log_type <- ifelse(is.null(log_item$type), "unknown", log_item$type)
@@ -171,30 +182,30 @@ dump_app_logs <- function(stage) {
       log_type <- "unknown"
       log_message <- paste(as.character(log_item), collapse = " ")
     }
-    
+
     message("[", log_type, "] ", log_message)
   }
-  
+
   invisible(NULL)
 }
 
 expect_snapshot <- function(values, output_id, stage, require_html = FALSE) {
   snapshot <- values$output[[output_id]]
-  
+
   if (is.null(snapshot)) {
     dump_app_logs(stage)
     testthat::expect_true(FALSE, info = paste("Output not available during", stage, ":", output_id))
   }
-  
+
   if (require_html) {
     has_html <- is.list(snapshot) && !is.null(snapshot$html) && nzchar(snapshot$html)
-    
+
     if (!has_html) {
       dump_app_logs(stage)
       testthat::expect_true(FALSE, info = paste("HTML output not available during", stage, ":", output_id))
     }
   }
-  
+
   invisible(TRUE)
 }
 
@@ -224,18 +235,38 @@ read_sheet_clean <- function(sheet_name) {
     )
 }
 
+get_first_list_value <- function(list_name) {
+  list_tbl <- read_sheet_clean("lists")
+
+  values <- list_tbl |>
+    dplyr::filter(
+      .data$list_name == !!list_name,
+      active == "TRUE",
+      !is.na(value),
+      value != ""
+    ) |>
+    dplyr::arrange(suppressWarnings(as.numeric(sort_order))) |>
+    dplyr::pull(value)
+
+  if (length(values) == 0) {
+    stop("No active value found in lists for: ", list_name)
+  }
+
+  values[1]
+}
+
 find_reservation_by_marker <- function(marker_value) {
   reservations_tbl <- read_sheet_clean("reservations")
-  
+
   marker_columns <- intersect(
     c("reservation_id", "justification", "public_notes", "admin_notes"),
     names(reservations_tbl)
   )
-  
+
   if (length(marker_columns) == 0 || nrow(reservations_tbl) == 0) {
     return(reservations_tbl[0, , drop = FALSE])
   }
-  
+
   matching_rows <- Reduce(
     `|`,
     lapply(
@@ -247,40 +278,40 @@ find_reservation_by_marker <- function(marker_value) {
       }
     )
   )
-  
+
   reservations_tbl[matching_rows, , drop = FALSE]
 }
 
 wait_for_reservation <- function(marker_value, stage, timeout_seconds = 45) {
   deadline <- Sys.time() + timeout_seconds
-  
+
   repeat {
     found <- find_reservation_by_marker(marker_value)
-    
+
     if (nrow(found) > 0) {
       return(found[nrow(found), , drop = FALSE])
     }
-    
+
     if (Sys.time() > deadline) {
       stop("Reservation not found during ", stage, ": ", marker_value)
     }
-    
+
     Sys.sleep(2)
   }
 }
 
 wait_for_reservation_status <- function(reservation_id, expected_status, stage, timeout_seconds = 45) {
   deadline <- Sys.time() + timeout_seconds
-  
+
   repeat {
     reservations_tbl <- read_sheet_clean("reservations")
     found <- reservations_tbl |>
       dplyr::filter(reservation_id == !!reservation_id)
-    
+
     if (nrow(found) == 1 && identical(found$status[1], expected_status)) {
       return(found)
     }
-    
+
     if (Sys.time() > deadline) {
       actual_status <- if (nrow(found) == 1) found$status[1] else "<missing>"
       stop(
@@ -290,33 +321,72 @@ wait_for_reservation_status <- function(reservation_id, expected_status, stage, 
         ". Reservation: ", reservation_id
       )
     }
-    
+
     Sys.sleep(2)
   }
 }
 
 expect_audit_event <- function(reservation_id, event_type, note_marker) {
   audit_tbl <- read_sheet_clean("audit_log")
-  
+
   found <- audit_tbl |>
     dplyr::filter(
       reservation_id == !!reservation_id,
       event_type == !!event_type,
       stringr::str_detect(ifelse(is.na(notes), "", notes), stringr::fixed(note_marker))
     )
-  
+
   testthat::expect_true(
     nrow(found) >= 1,
     info = paste("Expected audit event not found:", reservation_id, event_type)
   )
 }
 
+wait_for_usage_row <- function(reservation_id, expected_state, note_marker, stage, timeout_seconds = 45) {
+  deadline <- Sys.time() + timeout_seconds
+
+  repeat {
+    usage_tbl <- read_sheet_clean("usage_log")
+
+    found <- usage_tbl |>
+      dplyr::filter(
+        reservation_id == !!reservation_id,
+        stringr::str_detect(ifelse(is.na(notes), "", notes), stringr::fixed(note_marker))
+      )
+
+    if (nrow(found) >= 1) {
+      latest <- found[nrow(found), , drop = FALSE]
+      finished_value <- if ("finished_at" %in% names(latest)) latest$finished_at[1] else NA_character_
+      is_open <- is.na(finished_value) || identical(finished_value, "")
+      is_finished <- !is_open
+
+      if (identical(expected_state, "started") && is_open) {
+        return(latest)
+      }
+
+      if (identical(expected_state, "finished") && is_finished) {
+        return(latest)
+      }
+    }
+
+    if (Sys.time() > deadline) {
+      stop(
+        "Usage row did not reach expected state during ", stage,
+        ". Expected: ", expected_state,
+        ". Reservation: ", reservation_id
+      )
+    }
+
+    Sys.sleep(2)
+  }
+}
+
 submit_booking <- function(case_id, start_date, start_time, estimated_hours, requires_super_2) {
   marker_value <- paste(test_marker, case_id, sep = "_")
-  
+
   app$set_inputs(main_nav = "Solicitar reserva")
   wait_for_app(1)
-  
+
   app$set_inputs(
     booking_user_id = test_user_id,
     booking_email = test_user_email,
@@ -334,13 +404,13 @@ submit_booking <- function(case_id, start_date, start_time, estimated_hours, req
     booking_justification = paste("Teste automatizado de interface.", marker_value),
     booking_public_notes = paste("Teste automatizado.", marker_value)
   )
-  
+
   wait_for_app(1)
   app$set_inputs(generate_booking_preview = "click")
   wait_for_app(4)
-  
+
   booking_values <- get_values_checked(paste("booking preview", case_id))
-  
+
   testthat::expect_true(
     booking_values$input$generate_booking_preview > 0,
     info = paste("Booking preview button did not increment:", case_id)
@@ -354,31 +424,62 @@ submit_booking <- function(case_id, start_date, start_time, estimated_hours, req
     info = paste("Booking email was not set:", case_id)
   )
   expect_snapshot(booking_values, "booking_preview", paste("booking preview", case_id), require_html = TRUE)
-  
+
   app$set_inputs(submit_booking = "click")
   wait_for_app(8)
-  
+
   wait_for_reservation(marker_value, paste("booking submit", case_id))
 }
 
-run_admin_action <- function(reservation_id, note_marker, button_input, expected_status, event_type) {
-  app$set_inputs(main_nav = "Administração")
+run_admin_action <- function(
+    reservation_id,
+    note_marker,
+    button_input,
+    expected_status,
+    event_type,
+    finish_reason = NULL
+) {
+  app$set_inputs(main_nav = "AdministraÃ§Ã£o")
   wait_for_app(2)
-  
+
   app$set_inputs(
     admin_reservation_id = reservation_id,
     admin_notes = note_marker
   )
+
+  if (!is.null(finish_reason)) {
+    app$set_inputs(admin_finish_reason = finish_reason)
+  }
+
   wait_for_app(1)
-  
+
   button_args <- stats::setNames(list("click"), button_input)
   do.call(app$set_inputs, button_args)
   wait_for_app(8)
-  
-  wait_for_reservation_status(
-    reservation_id = reservation_id,
-    expected_status = expected_status,
-    stage = paste("admin action", event_type)
+
+  tryCatch(
+    wait_for_reservation_status(
+      reservation_id = reservation_id,
+      expected_status = expected_status,
+      stage = paste("admin action", event_type)
+    ),
+    error = function(error) {
+      values <- get_values_checked(paste("admin action failure", event_type))
+      input_names <- names(values$input)
+      matching_inputs <- input_names[
+        input_names %in% c(
+          "admin_reservation_id",
+          "admin_notes",
+          "admin_finish_reason",
+          button_input
+        )
+      ]
+
+      message("\nAdmin input state during failed action:")
+      print(values$input[matching_inputs])
+      dump_app_logs(paste("admin action failure", event_type))
+      stop(error)
+    }
   )
   expect_audit_event(
     reservation_id = reservation_id,
@@ -428,7 +529,7 @@ reservation_values <- get_values_checked("reservations output")
 expect_snapshot(reservation_values, "reservations_table", "reservations output")
 
 message("Logging into administration and exercising admin actions...")
-app$set_inputs(main_nav = "Administração")
+app$set_inputs(main_nav = "AdministraÃ§Ã£o")
 wait_for_app(1)
 
 admin_values <- get_values_checked("admin output")
@@ -448,6 +549,9 @@ expect_snapshot(admin_values, "admin_panel", "admin login", require_html = TRUE)
 approve_note <- paste(test_marker, "ADMIN_APPROVE_NOTE", sep = "_")
 reject_note <- paste(test_marker, "ADMIN_REJECT_NOTE", sep = "_")
 cancel_note <- paste(test_marker, "ADMIN_CANCEL_NOTE", sep = "_")
+start_note <- paste(test_marker, "ADMIN_START_NOTE", sep = "_")
+finish_note <- paste(test_marker, "ADMIN_FINISH_NOTE", sep = "_")
+finish_reason_value <- get_first_list_value("finish_reason")
 
 run_admin_action(
   reservation_id = approve_row$reservation_id[1],
@@ -455,6 +559,50 @@ run_admin_action(
   button_input = "admin_approve",
   expected_status = "approved",
   event_type = "reservation_approved"
+)
+
+run_admin_action(
+  reservation_id = approve_row$reservation_id[1],
+  note_marker = start_note,
+  button_input = "admin_start_use",
+  expected_status = "in_use",
+  event_type = "reservation_start_use"
+)
+
+started_usage <- wait_for_usage_row(
+  reservation_id = approve_row$reservation_id[1],
+  expected_state = "started",
+  note_marker = start_note,
+  stage = "admin start usage"
+)
+
+testthat::expect_identical(started_usage$started_by[1], "admin")
+testthat::expect_true(
+  !is.na(started_usage$started_at[1]) && started_usage$started_at[1] != "",
+  info = "Usage start time was not recorded."
+)
+
+run_admin_action(
+  reservation_id = approve_row$reservation_id[1],
+  note_marker = finish_note,
+  button_input = "admin_finish_use",
+  expected_status = "finished",
+  event_type = "reservation_finish_use",
+  finish_reason = finish_reason_value
+)
+
+finished_usage <- wait_for_usage_row(
+  reservation_id = approve_row$reservation_id[1],
+  expected_state = "finished",
+  note_marker = finish_note,
+  stage = "admin finish usage"
+)
+
+testthat::expect_identical(finished_usage$finished_by[1], "admin")
+testthat::expect_identical(finished_usage$finish_reason[1], finish_reason_value)
+testthat::expect_true(
+  !is.na(finished_usage$duration_hours[1]) && finished_usage$duration_hours[1] != "",
+  info = "Usage duration was not recorded."
 )
 
 run_admin_action(

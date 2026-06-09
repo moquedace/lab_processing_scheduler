@@ -76,7 +76,7 @@ if (!is.na(service_account_json) && file.exists(service_account_json)) {
     path = service_account_json,
     scopes = "https://www.googleapis.com/auth/spreadsheets"
   )
-  
+
   googlesheets4::gs4_auth(
     token = service_account_token
   )
@@ -134,9 +134,9 @@ server <- function(input, output, session) {
   last_submitted_id <- reactiveVal(NULL)
   admin_authenticated <- reactiveVal(FALSE)
   auto_refresh <- reactiveTimer(60000, session = session)
-  
-  # Cadastros e configuração: relidos apenas em recarga explícita (envio,
-  # ação administrativa). Não dependem do timer, poupando chamadas à API.
+
+  # Cadastros e configuraÃ§Ã£o: relidos apenas em recarga explÃ­cita (envio,
+  # aÃ§Ã£o administrativa). NÃ£o dependem do timer, poupando chamadas Ã  API.
   static_tables <- reactive({
     reload_key()
 
@@ -147,7 +147,7 @@ server <- function(input, output, session) {
     read_static_tables()
   })
 
-  # Reservas, uso e auditoria: relidos no timer e em cada recarga explícita.
+  # Reservas, uso e auditoria: relidos no timer e em cada recarga explÃ­cita.
   dynamic_tables <- reactive({
     auto_refresh()
     reload_key()
@@ -159,95 +159,95 @@ server <- function(input, output, session) {
     read_dynamic_tables()
   })
 
-  # Interface única: database()$users, database()$reservations, etc.
+  # Interface Ãºnica: database()$users, database()$reservations, etc.
   database <- reactive({
     c(static_tables(), dynamic_tables())
   })
-  
+
   users <- reactive({
     get_active_users(database())
   })
-  
+
   computers <- reactive({
     get_active_computers(database())
   })
-  
+
   lists <- reactive({
     get_active_lists(database())
   })
-  
+
   reservations <- reactive({
     database()$reservations
   })
-  
+
   audit_log <- reactive({
     database()$audit_log
   })
-  
+
   priority_rules <- reactive({
     database()$priority_rules %>%
       dplyr::filter(active == "TRUE") %>%
       dplyr::arrange(rule_id)
   })
-  
+
   settings <- reactive({
     get_active_settings(database())
   })
-  
+
   observe({
     user_choices <- users() %>%
       dplyr::mutate(label = paste0(full_name, " | ", user_level_label)) %>%
       dplyr::arrange(full_name)
-    
+
     updateSelectInput(
       session,
       inputId = "booking_user_id",
       choices = stats::setNames(user_choices$user_id, user_choices$label),
       selected = user_choices$user_id[1]
     )
-    
+
     updateSelectInput(
       session,
       inputId = "booking_computer_requested",
       choices = get_choices(lists(), "computer_requested"),
       selected = "any"
     )
-    
+
     updateSelectInput(
       session,
       inputId = "booking_main_environment",
       choices = get_choices(lists(), "main_environment"),
       selected = "r"
     )
-    
+
     updateSelectInput(
       session,
       inputId = "booking_processing_type",
       choices = get_choices(lists(), "processing_type"),
       selected = "raster_processing"
     )
-    
+
     updateSelectInput(
       session,
       inputId = "booking_computing_demand",
       choices = get_choices(lists(), "computing_demand"),
       selected = "raster_processing"
     )
-    
+
     updateSelectInput(
       session,
       inputId = "booking_uses_gpu",
       choices = get_choices(lists(), "yes_no"),
       selected = "unknown"
     )
-    
+
     updateSelectInput(
       session,
       inputId = "booking_requires_super_2",
       choices = get_choices(lists(), "yes_no"),
       selected = "unknown"
     )
-    
+
     updateSelectInput(
       session,
       inputId = "booking_can_be_reallocated",
@@ -255,20 +255,20 @@ server <- function(input, output, session) {
       selected = "yes"
     )
   })
-  
+
   selected_user <- reactive({
     users() %>%
       dplyr::filter(user_id == input$booking_user_id) %>%
       dplyr::slice(1)
   })
-  
+
   output$selected_user_info <- renderUI({
     user_tbl <- selected_user()
-    
+
     if (nrow(user_tbl) == 0) {
       return(NULL)
     }
-    
+
     tags$div(
       class = "user-info-box",
       tags$span("Cadastro selecionado"),
@@ -279,7 +279,7 @@ server <- function(input, output, session) {
       tags$strong(user_tbl$advisor)
     )
   })
-  
+
   register_public_server_outputs(
     output = output,
     database = database,
@@ -288,49 +288,49 @@ server <- function(input, output, session) {
     settings = settings,
     lists = lists
   )
-  
+
   booking_preview_data <- eventReactive(input$generate_booking_preview, {
     user_tbl <- selected_user()
-    
+
     estimated_hours_value <- suppressWarnings(
       as.numeric(input$booking_estimated_hours)
     )
-    
+
     deadline_value <- input$booking_deadline
-    
+
     if (is.null(deadline_value) || length(deadline_value) == 0 || is.na(deadline_value)) {
       deadline_value <- NA
     }
-    
+
     validate(
-      need(nrow(user_tbl) == 1, "Selecione um usuário válido."),
+      need(nrow(user_tbl) == 1, "Selecione um usuÃ¡rio vÃ¡lido."),
       need(input$booking_email != "", "Confirme o e-mail cadastrado."),
       need(
         stringr::str_to_lower(input$booking_email) == stringr::str_to_lower(user_tbl$email),
-        "O e-mail informado não confere com o e-mail cadastrado."
+        "O e-mail informado nÃ£o confere com o e-mail cadastrado."
       ),
       need(
         !is.na(estimated_hours_value) &&
           is.finite(estimated_hours_value) &&
           estimated_hours_value > 0,
-        "Informe uma duração válida."
+        "Informe uma duraÃ§Ã£o vÃ¡lida."
       )
     )
-    
+
     timezone_value <- get_setting_value(
       settings(),
       "timezone",
       "America/Sao_Paulo"
     )
-    
+
     start_time_value <- parse_datetime(
       input$booking_start_date,
       input$booking_start_time,
       timezone_value
     )
-    
+
     end_time_value <- start_time_value + lubridate::dhours(estimated_hours_value)
-    
+
     assigned_computer <- suggest_computer_assignment(
       computer_requested = input$booking_computer_requested,
       computing_demand = input$booking_computing_demand,
@@ -340,7 +340,7 @@ server <- function(input, output, session) {
       timezone_value = timezone_value,
       computers_tbl = computers()
     )
-    
+
     has_conflict <- check_reservation_conflict(
       reservations_tbl = reservations(),
       computer_id_value = assigned_computer,
@@ -348,7 +348,7 @@ server <- function(input, output, session) {
       end_time_value = end_time_value,
       timezone_value = timezone_value
     )
-    
+
     priority_score <- calculate_priority_score(
       user_level = user_tbl$user_level,
       deadline_date = deadline_value,
@@ -360,7 +360,7 @@ server <- function(input, output, session) {
       main_environment = input$booking_main_environment,
       priority_rules_tbl = priority_rules()
     )
-    
+
     approval_decision <- decide_approval_mode(
       user_level = user_tbl$user_level,
       estimated_hours = estimated_hours_value,
@@ -369,19 +369,19 @@ server <- function(input, output, session) {
       has_conflict = has_conflict,
       settings_tbl = settings()
     )
-    
+
     reservation_status <- decide_reservation_status(
       approval_mode = approval_decision$mode,
       settings_tbl = settings()
     )
-    
+
     choices_computer_requested <- get_choices(lists(), "computer_requested")
     choices_computer_assigned <- get_choices(lists(), "computer_assigned")
     choices_environment <- get_choices(lists(), "main_environment")
     choices_processing <- get_choices(lists(), "processing_type")
     choices_demand <- get_choices(lists(), "computing_demand")
     choices_yes_no <- get_choices(lists(), "yes_no")
-    
+
     list(
       user_id = user_tbl$user_id,
       user_name = user_tbl$full_name,
@@ -440,30 +440,30 @@ server <- function(input, output, session) {
       status = reservation_status
     )
   })
-  
+
   output$booking_preview <- renderUI({
     preview <- booking_preview_data()
     reservation_preview_ui(preview)
   })
   outputOptions(output, "booking_preview", suspendWhenHidden = FALSE)
-  
+
   observeEvent(input$submit_booking, {
     preview <- booking_preview_data()
     req(preview)
-    
+
     timezone_value <- get_setting_value(settings(), "timezone", "America/Sao_Paulo")
     new_reservation <- create_reservation_row(preview, timezone_value)
-    
+
     aligned_reservations <- align_tables_as_character(
       reference_tbl = reservations(),
       new_tbl = new_reservation
     )
-    
+
     reservations_updated <- dplyr::bind_rows(
       aligned_reservations$reference_tbl,
       aligned_reservations$new_tbl
     )
-    
+
     tryCatch(
       {
         write_sheet_to_workbook(
@@ -471,25 +471,25 @@ server <- function(input, output, session) {
           sheet_name = "reservations",
           data_tbl = reservations_updated
         )
-        
+
         last_submitted_id(new_reservation$reservation_id[1])
         reload_key(reload_key() + 1)
-        
+
         showNotification(
           paste0(
-            "Solicitação enviada com sucesso: ",
+            "SolicitaÃ§Ã£o enviada com sucesso: ",
             new_reservation$reservation_id[1]
           ),
           type = "message",
           duration = 6
         )
-        
+
         updateTabsetPanel(session, "main_nav", selected = "Reservas")
       },
       error = function(e) {
         showNotification(
           paste(
-            "Não foi possível gravar a solicitação no Google Sheets.",
+            "NÃ£o foi possÃ­vel gravar a solicitaÃ§Ã£o no Google Sheets.",
             e$message
           ),
           type = "error",
@@ -498,7 +498,7 @@ server <- function(input, output, session) {
       }
     )
   })
-  
+
   output$admin_panel <- renderUI({
     if (!admin_authenticated()) {
       return(
@@ -520,13 +520,13 @@ server <- function(input, output, session) {
             class = "empty-preview",
             tags$h3("Acesso restrito"),
             tags$p(
-              "Use esta área apenas para revisar solicitações e alterar status de reservas."
+              "Use esta Ã¡rea apenas para revisar solicitaÃ§Ãµes e alterar status de reservas."
             )
           )
         )
       )
     }
-    
+
     admin_reservations <- reservations() %>%
       dplyr::filter(status %in% c("pending", "approved", "in_use")) %>%
       dplyr::left_join(
@@ -558,6 +558,39 @@ server <- function(input, output, session) {
       )
     }
 
+    selected_reservation <- isolate(input$admin_reservation_id)
+
+    if (
+      is.null(selected_reservation) ||
+        !selected_reservation %in% unname(reservation_choices)
+    ) {
+      selected_reservation <- if (length(reservation_choices) > 0) {
+        unname(reservation_choices)[1]
+      } else {
+        character(0)
+      }
+    }
+
+    finish_reason_choices <- get_choices(lists(), "finish_reason")
+    selected_finish_reason <- isolate(input$admin_finish_reason)
+
+    if (
+      is.null(selected_finish_reason) ||
+        !selected_finish_reason %in% unname(finish_reason_choices)
+    ) {
+      selected_finish_reason <- if (length(finish_reason_choices) > 0) {
+        unname(finish_reason_choices)[1]
+      } else {
+        character(0)
+      }
+    }
+
+    current_admin_notes <- isolate(input$admin_notes)
+
+    if (is.null(current_admin_notes)) {
+      current_admin_notes <- ""
+    }
+
     tags$div(
       class = "form-layout",
       tags$div(
@@ -566,26 +599,28 @@ server <- function(input, output, session) {
           tags$h4(class = "form-section-title", "Reserva"),
           actionButton(
             inputId = "admin_logout",
-            label = "Sair da administração",
+            label = "Sair da administraÃ§Ã£o",
             class = "btn-outline-secondary"
           )
         ),
         selectInput(
           inputId = "admin_reservation_id",
           label = "Selecione uma reserva",
-          choices = reservation_choices
+          choices = reservation_choices,
+          selected = selected_reservation
         ),
         textAreaInput(
           inputId = "admin_notes",
-          label = "Observação administrativa",
-          placeholder = "Informe o motivo da decisão ou alguma orientação para o usuário.",
-          rows = 3
+          label = "ObservaÃ§Ã£o administrativa",
+          placeholder = "Informe o motivo da decisÃ£o ou alguma orientaÃ§Ã£o para o usuÃ¡rio.",
+          rows = 3,
+          value = current_admin_notes
         ),
         selectInput(
           inputId = "admin_finish_reason",
-          label = "Motivo da finalização",
-          choices = get_choices(lists(), "finish_reason"),
-          selected = "normal"
+          label = "Motivo da finalizaÃ§Ã£o",
+          choices = finish_reason_choices,
+          selected = selected_finish_reason
         ),
         fluidRow(
           column(
@@ -635,7 +670,7 @@ server <- function(input, output, session) {
           tags$div(style = "margin-top: 12px;", DT::DTOutput("admin_approved_table"))
         ),
         tabPanel(
-          "Histórico",
+          "HistÃ³rico",
           tags$div(style = "margin-top: 12px;", DT::DTOutput("admin_history_table"))
         ),
         tabPanel(
@@ -649,16 +684,16 @@ server <- function(input, output, session) {
 
   observeEvent(input$admin_login, {
     expected_password <- Sys.getenv("LAB_SCHEDULER_ADMIN_PASSWORD")
-    
+
     if (expected_password == "") {
       showNotification(
-        "Senha administrativa não configurada no ambiente R.",
+        "Senha administrativa nÃ£o configurada no ambiente R.",
         type = "error",
         duration = 8
       )
       return(NULL)
     }
-    
+
     if (identical(input$admin_password, expected_password)) {
       admin_authenticated(TRUE)
       showNotification(
@@ -675,28 +710,28 @@ server <- function(input, output, session) {
       )
     }
   })
-  
+
   observeEvent(input$admin_logout, {
     admin_authenticated(FALSE)
-    
+
     updateTextInput(
       session,
       inputId = "admin_password",
       value = ""
     )
-    
+
     showNotification(
-      "Sessão administrativa encerrada.",
+      "SessÃ£o administrativa encerrada.",
       type = "message",
       duration = 5
     )
   })
-  
+
   output$admin_selected_reservation <- renderUI({
     req(admin_authenticated())
-    
+
     selected_id <- input$admin_reservation_id
-    
+
     if (is.null(selected_id) || selected_id == "") {
       return(
         tags$div(
@@ -706,7 +741,7 @@ server <- function(input, output, session) {
         )
       )
     }
-    
+
     reservation_tbl <- reservations() %>%
       dplyr::filter(reservation_id == selected_id) %>%
       dplyr::left_join(
@@ -714,17 +749,17 @@ server <- function(input, output, session) {
         by = "user_id"
       ) %>%
       dplyr::slice(1)
-    
+
     if (nrow(reservation_tbl) == 0) {
       return(
         tags$div(
           class = "empty-preview",
-          tags$h3("Reserva não encontrada"),
-          tags$p("A reserva selecionada não foi encontrada na base.")
+          tags$h3("Reserva nÃ£o encontrada"),
+          tags$p("A reserva selecionada nÃ£o foi encontrada na base.")
         )
       )
     }
-    
+
     computer_requested_label <- get_label_from_value(
       lists(), "computer_requested", reservation_tbl$computer_requested
     )
@@ -761,7 +796,7 @@ server <- function(input, output, session) {
       tags$div(
         class = "preview-header",
         tags$div(
-          tags$span(class = "section-kicker", "Revisão administrativa"),
+          tags$span(class = "section-kicker", "RevisÃ£o administrativa"),
           tags$h3(reservation_tbl$full_name)
         ),
         tags$div(class = status_badge_class, status_label)
@@ -771,10 +806,10 @@ server <- function(input, output, session) {
         tags$div(tags$span("Reserva"), tags$strong(reservation_tbl$reservation_id)),
         tags$div(tags$span("Categoria"), tags$strong(reservation_tbl$user_level_label)),
         tags$div(tags$span("Computador solicitado"), tags$strong(computer_requested_label)),
-        tags$div(tags$span("Computador atribuído"), tags$strong(computer_assigned_label)),
-        tags$div(tags$span("Início"), tags$strong(reservation_tbl$start_time)),
+        tags$div(tags$span("Computador atribuÃ­do"), tags$strong(computer_assigned_label)),
+        tags$div(tags$span("InÃ­cio"), tags$strong(reservation_tbl$start_time)),
         tags$div(tags$span("Fim previsto"), tags$strong(reservation_tbl$end_time)),
-        tags$div(tags$span("Duração h"), tags$strong(reservation_tbl$estimated_hours)),
+        tags$div(tags$span("DuraÃ§Ã£o h"), tags$strong(reservation_tbl$estimated_hours)),
         tags$div(tags$span("Prioridade"), tags$strong(reservation_tbl$priority_score)),
         tags$div(tags$span("Tipo"), tags$strong(processing_type_label)),
         tags$div(tags$span("Demanda"), tags$strong(computing_demand_label)),
@@ -789,11 +824,11 @@ server <- function(input, output, session) {
     )
   })
   outputOptions(output, "admin_selected_reservation", suspendWhenHidden = FALSE)
-  
+
   process_admin_action <- function(new_status, event_type) {
     req(admin_authenticated())
     req(input$admin_reservation_id)
-    
+
     selected_id <- input$admin_reservation_id
     timezone_value <- get_setting_value(settings(), "timezone", "America/Sao_Paulo")
     admin_user <- "admin"
@@ -802,7 +837,7 @@ server <- function(input, output, session) {
       NA_character_,
       input$admin_notes
     )
-    
+
     tryCatch(
       {
         updated_result <- update_reservation_status(
@@ -813,7 +848,7 @@ server <- function(input, output, session) {
           admin_notes_value = admin_notes_value,
           timezone_value = timezone_value
         )
-        
+
         audit_row <- create_audit_row(
           event_type = event_type,
           reservation_id = selected_id,
@@ -824,43 +859,43 @@ server <- function(input, output, session) {
           notes = admin_notes_value,
           timezone_value = timezone_value
         )
-        
+
         aligned_audit <- align_tables_as_character(
           reference_tbl = audit_log(),
           new_tbl = audit_row
         )
-        
+
         audit_updated <- dplyr::bind_rows(
           aligned_audit$reference_tbl,
           aligned_audit$new_tbl
         )
-        
+
         write_sheet_to_workbook(
           database_file = database_file,
           sheet_name = "reservations",
           data_tbl = updated_result$reservations_tbl
         )
-        
+
         write_sheet_to_workbook(
           database_file = database_file,
           sheet_name = "audit_log",
           data_tbl = audit_updated
         )
-        
+
         reload_key(reload_key() + 1)
-        
+
         showNotification(
           paste0("Reserva atualizada para: ", new_status),
           type = "message",
           duration = 6
         )
-        
+
         updateTabsetPanel(session, "main_nav", selected = "Reservas")
       },
       error = function(e) {
         showNotification(
           paste(
-            "Não foi possível atualizar a reserva no Google Sheets.",
+            "NÃ£o foi possÃ­vel atualizar a reserva no Google Sheets.",
             e$message
           ),
           type = "error",
@@ -869,21 +904,21 @@ server <- function(input, output, session) {
       }
     )
   }
-  
+
   observeEvent(input$admin_approve, {
     process_admin_action(
       new_status = "approved",
       event_type = "reservation_approved"
     )
   })
-  
+
   observeEvent(input$admin_reject, {
     process_admin_action(
       new_status = "rejected",
       event_type = "reservation_rejected"
     )
   })
-  
+
   observeEvent(input$admin_cancel, {
     process_admin_action(
       new_status = "cancelled",
@@ -924,7 +959,9 @@ server <- function(input, output, session) {
           user_id = updated_result$user_id,
           computer_assigned = res_row$computer_assigned,
           actual_start_time = lubridate::now(tzone = timezone_value),
-          timezone_value = timezone_value
+          timezone_value = timezone_value,
+          started_by = admin_user,
+          notes = admin_notes_value
         )
 
         aligned_usage <- align_tables_as_character(
@@ -986,7 +1023,7 @@ server <- function(input, output, session) {
       },
       error = function(e) {
         showNotification(
-          paste("Não foi possível iniciar o uso.", e$message),
+          paste("NÃ£o foi possÃ­vel iniciar o uso.", e$message),
           type = "error",
           duration = 10
         )
@@ -1007,12 +1044,18 @@ server <- function(input, output, session) {
       input$admin_notes
     )
 
+    finish_reason_choices <- get_choices(lists(), "finish_reason")
+
     finish_reason_value <- if (
-      is.null(input$admin_finish_reason) || input$admin_finish_reason == ""
+      !is.null(input$admin_finish_reason) &&
+        input$admin_finish_reason != "" &&
+        input$admin_finish_reason %in% unname(finish_reason_choices)
     ) {
-      "normal"
-    } else {
       input$admin_finish_reason
+    } else if (length(finish_reason_choices) > 0) {
+      unname(finish_reason_choices)[1]
+    } else {
+      "completed"
     }
 
     tryCatch(
@@ -1028,12 +1071,16 @@ server <- function(input, output, session) {
 
         now_value <- lubridate::now(tzone = timezone_value)
 
+        latest_dynamic_tables <- read_dynamic_tables()
+
         usage_updated <- finish_usage_row(
-          usage_log_tbl = database()$usage_log,
+          usage_log_tbl = latest_dynamic_tables$usage_log,
           reservation_id_value = selected_id,
           actual_end_time = now_value,
           finish_reason = finish_reason_value,
-          timezone_value = timezone_value
+          timezone_value = timezone_value,
+          finished_by = admin_user,
+          notes = admin_notes_value
         )
 
         audit_row <- create_audit_row(
@@ -1085,7 +1132,7 @@ server <- function(input, output, session) {
       },
       error = function(e) {
         showNotification(
-          paste("Não foi possível finalizar o uso.", e$message),
+          paste("NÃ£o foi possÃ­vel finalizar o uso.", e$message),
           type = "error",
           duration = 10
         )
@@ -1122,11 +1169,11 @@ server <- function(input, output, session) {
       ) %>%
       dplyr::rename(
         "Reserva"      = reservation_id,
-        "Usuário"      = full_name,
+        "UsuÃ¡rio"      = full_name,
         "Computador"   = computer_label,
-        "Início"       = start_time,
+        "InÃ­cio"       = start_time,
         "Fim previsto" = end_time,
-        "Duração h"    = estimated_hours,
+        "DuraÃ§Ã£o h"    = estimated_hours,
         "Status"       = status_label
       )
 
@@ -1166,11 +1213,11 @@ server <- function(input, output, session) {
       ) %>%
       dplyr::rename(
         "Reserva"    = reservation_id,
-        "Usuário"    = full_name,
+        "UsuÃ¡rio"    = full_name,
         "Computador" = computer_label,
-        "Início"     = start_time,
+        "InÃ­cio"     = start_time,
         "Status"     = status_label,
-        "Observação" = admin_notes
+        "ObservaÃ§Ã£o" = admin_notes
       )
 
     DT::datatable(
@@ -1197,8 +1244,8 @@ server <- function(input, output, session) {
   outputOptions(output, "admin_audit_table", suspendWhenHidden = FALSE)
 
   output$reservations_table <- DT::renderDT({
-    # Visão pública: mostra todas as reservas exceto rejeitadas e canceladas,
-    # sem filtro de data — usa o mesmo formatter que o painel público para
+    # VisÃ£o pÃºblica: mostra todas as reservas exceto rejeitadas e canceladas,
+    # sem filtro de data â€” usa o mesmo formatter que o painel pÃºblico para
     # garantir colunas consistentes com os settings configurados.
     DT::datatable(
       format_public_reservations(
