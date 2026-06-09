@@ -1,3 +1,10 @@
+# Opções de horário para o seletor de início da reserva (meia em meia hora).
+time_choices <- sprintf(
+  "%02d:%02d",
+  rep(0:23, each = 2),
+  rep(c(0, 30), times = 24)
+)
+
 ui <- bslib::page_navbar(
   title = "Reserva dos Computadores de Processamento",
   theme = theme_app,

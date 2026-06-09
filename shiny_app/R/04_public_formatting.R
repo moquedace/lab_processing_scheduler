@@ -1,57 +1,3 @@
-format_reservations_public <- function(reservations_tbl, users_tbl, lists_tbl) {
-  if (nrow(reservations_tbl) == 0) {
-    return(
-      tibble::tibble(
-        "Usuário" = character(),
-        "Computador" = character(),
-        "Início" = character(),
-        "Fim previsto" = character(),
-        "Duração h" = character(),
-        "Tipo de processamento" = character(),
-        "Status" = character()
-      )
-    )
-  }
-
-  reservations_tbl %>%
-    dplyr::left_join(
-      users_tbl %>% dplyr::select(user_id, full_name),
-      by = "user_id"
-    ) %>%
-    dplyr::mutate(
-      computer_assigned_label = purrr::map_chr(
-        computer_assigned,
-        ~ get_label_from_value(lists_tbl, "computer_assigned", .x)
-      ),
-      processing_type_label = purrr::map_chr(
-        processing_type,
-        ~ get_label_from_value(lists_tbl, "processing_type", .x)
-      ),
-      status_label = purrr::map_chr(
-        status,
-        ~ get_label_from_value(lists_tbl, "reservation_status", .x)
-      )
-    ) %>%
-    dplyr::select(
-      full_name,
-      computer_assigned_label,
-      start_time,
-      end_time,
-      estimated_hours,
-      processing_type_label,
-      status_label
-    ) %>%
-    dplyr::rename(
-      "Usuário" = full_name,
-      "Computador" = computer_assigned_label,
-      "Início" = start_time,
-      "Fim previsto" = end_time,
-      "Duração h" = estimated_hours,
-      "Tipo de processamento" = processing_type_label,
-      "Status" = status_label
-    )
-}
-
 format_audit_public <- function(audit_tbl, users_tbl) {
   if (nrow(audit_tbl) == 0) {
     return(
@@ -401,8 +347,3 @@ public_computer_status_cards_ui <- function(
   )
 }
 
-time_choices <- sprintf(
-  "%02d:%02d",
-  rep(0:23, each = 2),
-  rep(c(0, 30), times = 24)
-)

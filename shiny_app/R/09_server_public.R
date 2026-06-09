@@ -62,7 +62,7 @@ register_public_server_outputs <- function(
         lists_tbl = lists(),
         settings_tbl = settings(),
         status_values = c("pending"),
-        include_current = TRUE
+        include_all = TRUE   # pendências são sempre exibidas, mesmo com datas passadas
       ),
       rownames = FALSE,
       filter = "top",

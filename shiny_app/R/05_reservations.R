@@ -381,6 +381,11 @@ finish_usage_row <- function(
   )
 
   if (length(row_id) == 0) {
+    warning(
+      "finish_usage_row: nenhuma linha aberta encontrada para a reserva ",
+      reservation_id_value,
+      ". O usage_log não foi alterado."
+    )
     return(usage_log_tbl)
   }
 
