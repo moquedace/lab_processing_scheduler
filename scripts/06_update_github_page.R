@@ -69,18 +69,18 @@ computers <- list(
   list(
     name = "Super 1",
     hero_tag = "Uso geral",
-    title = "Processamento cient�fico geral.",
-    badge = "Reserv�vel",
+    title = "Processamento científico geral.",
+    badge = "Reservável",
     badge_class = "pill",
     card_class = "machine-card",
     description = paste(
       "Indicado para rotinas em R e Python, processamento espacial,",
-      "modelagens intermedi�rias e tarefas com GPU de demanda moderada."
+      "modelagens intermediárias e tarefas com GPU de demanda moderada."
     ),
     specs = list(
       list(label = "Processador", value = "2 x Intel Xeon Gold 5120T"),
-      list(label = "N�cleos", value = "28 n�cleos | 56 threads"),
-      list(label = "Mem�ria", value = "128 GB RAM"),
+      list(label = "Núcleos", value = "28 núcleos | 56 threads"),
+      list(label = "Memória", value = "128 GB RAM"),
       list(label = "GPU", value = "NVIDIA Quadro RTX 4000 | 8 GB")
     )
   ),
@@ -88,17 +88,17 @@ computers <- list(
     name = "Super 2",
     hero_tag = "Alta demanda",
     title = "Processamento intensivo e paralelo.",
-    badge = "Priorit�rio",
+    badge = "Prioritário",
     badge_class = "pill priority",
     card_class = "machine-card featured",
     description = paste(
-      "Recomendado para grandes mosaicos raster, alto consumo de mem�ria,",
-      "predi��es espaciais em larga escala e rotinas com elevado paralelismo."
+      "Recomendado para grandes mosaicos raster, alto consumo de memória,",
+      "predições espaciais em larga escala e rotinas com elevado paralelismo."
     ),
     specs = list(
       list(label = "Processador", value = "AMD Ryzen Threadripper PRO 7985WX"),
-      list(label = "N�cleos", value = "64 n�cleos | 128 threads"),
-      list(label = "Mem�ria", value = "512 GB RAM"),
+      list(label = "Núcleos", value = "64 núcleos | 128 threads"),
+      list(label = "Memória", value = "512 GB RAM"),
       list(label = "GPU", value = "NVIDIA RTX 4000 Ada | 20 GB")
     )
   )
@@ -143,14 +143,14 @@ computer_names_text <- paste(
   collapse = " e "
 )
 
-# Cabe�alho da se��o de infraestrutura gerado a partir da contagem de m�quinas,
-# para acompanhar automaticamente a inclus�o de novas esta��es (ex.: Super 3).
+# Cabeçalho da seção de infraestrutura gerado a partir da contagem de máquinas,
+# para acompanhar automaticamente a inclusão de novas estações (ex.: Super 3).
 count_word_fem <- function(n) {
-  words <- c("Uma", "Duas", "Tr�s", "Quatro", "Cinco", "Seis")
+  words <- c("Uma", "Duas", "Três", "Quatro", "Cinco", "Seis")
   if (n >= 1 && n <= length(words)) words[n] else as.character(n)
 }
 
-estacao_word <- if (length(computers) == 1) "esta��o" else "esta��es"
+estacao_word <- if (length(computers) == 1) "estação" else "estações"
 
 machines_heading <- paste0(
   count_word_fem(length(computers)),
@@ -164,7 +164,7 @@ machine_cards_html <- paste(
   collapse = "\n\n"
 )
 
-# Linhas do painel do hero, geradas a partir das m�quinas cadastradas.
+# Linhas do painel do hero, geradas a partir das máquinas cadastradas.
 render_hero_machine_row <- function(computer) {
   paste0(
     '            <div>
@@ -186,7 +186,7 @@ html_content <- paste0(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reserva dos Computadores de Processamento | GeoCiS</title>
-  <meta name="description" content="Portal institucional de acesso ao sistema de reservas dos computadores ', computer_names_text, ' do Grupo de Geotecnologias em Ci�ncia do Solo, ESALQ/USP.">
+  <meta name="description" content="Portal institucional de acesso ao sistema de reservas dos computadores ', computer_names_text, ' do Grupo de Geotecnologias em Ciência do Solo, ESALQ/USP.">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/img/logo_geocis.png">
@@ -196,17 +196,17 @@ html_content <- paste0(
   <meta property="og:type"         content="website">
   <meta property="og:url"          content="https://moquedace.github.io/lab-processing-scheduler/">
   <meta property="og:title"        content="Reserva dos Computadores de Processamento | GeoCiS">
-  <meta property="og:description"  content="Portal institucional para reserva das esta��es de processamento do Grupo de Geotecnologias em Ci�ncia do Solo, ESALQ/USP.">
+  <meta property="og:description"  content="Portal institucional para reserva das estações de processamento do Grupo de Geotecnologias em Ciência do Solo, ESALQ/USP.">
   <meta property="og:image"        content="https://moquedace.github.io/lab-processing-scheduler/assets/img/og-preview.png">
   <meta property="og:image:width"  content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:locale"       content="pt_BR">
-  <meta property="og:site_name"    content="GeoCiS � ESALQ � USP">
+  <meta property="og:site_name"    content="GeoCiS · ESALQ · USP">
 
   <!-- Twitter / X Card -->
   <meta name="twitter:card"        content="summary_large_image">
   <meta name="twitter:title"       content="Reserva dos Computadores de Processamento | GeoCiS">
-  <meta name="twitter:description" content="Portal institucional para reserva das esta��es de processamento do Grupo de Geotecnologias em Ci�ncia do Solo, ESALQ/USP.">
+  <meta name="twitter:description" content="Portal institucional para reserva das estações de processamento do Grupo de Geotecnologias em Ciência do Solo, ESALQ/USP.">
   <meta name="twitter:image"       content="https://moquedace.github.io/lab-processing-scheduler/assets/img/og-preview.png">
 
   <style>
@@ -874,11 +874,11 @@ html_content <- paste0(
         </span>
       </a>
 
-      <nav class="nav" aria-label="Navega��o principal">
+      <nav class="nav" aria-label="Navegação principal">
         <a href="#acesso">Acesso</a>
         <a href="#infraestrutura">Infraestrutura</a>
         <a href="#fluxo">Como funciona</a>
-        <a href="#governanca">Governan�a</a>
+        <a href="#governanca">Governança</a>
         <a class="button button-primary" href="', shiny_app_url, '" target="_blank" rel="noopener noreferrer">Abrir sistema</a>
       </nav>
     </div>
@@ -889,10 +889,10 @@ html_content <- paste0(
       <div class="hero">
         <div class="hero-copy">
           <span class="eyebrow">Sistema online de reservas</span>
-          <h1>Uso organizado das esta��es ', computer_names_text, '.</h1>
+          <h1>Uso organizado das estações ', computer_names_text, '.</h1>
           <p>
             Portal institucional para acesso ao sistema de reservas dos computadores de processamento do GeoCiS.
-            A opera��o acontece no Shiny; esta p�gina re�ne contexto, infraestrutura e orienta��o de uso.
+            A operação acontece no Shiny; esta página reúne contexto, infraestrutura e orientação de uso.
           </p>
           <div class="hero-actions">
             <a class="button button-primary" href="', shiny_app_url, '" target="_blank" rel="noopener noreferrer">Acessar sistema de reservas</a>
@@ -900,9 +900,9 @@ html_content <- paste0(
           </div>
         </div>
 
-        <aside class="hero-panel" aria-label="Esta��es de processamento">
+        <aside class="hero-panel" aria-label="Estações de processamento">
           <div class="system-status">
-            <span class="mini-label">Esta��es de processamento</span>
+            <span class="mini-label">Estações de processamento</span>
             <strong>', length(computers), '</strong>
           </div>
           <div class="status-grid">
@@ -912,9 +912,9 @@ html_content <- paste0(
       </div>
     </section>
 
-    <section class="section white" aria-label="Institui��es">
+    <section class="section white" aria-label="Instituições">
       <div class="logo-strip">
-        <img src="assets/img/logo_solos.png" alt="Departamento de Ci�ncia do Solo" class="logo-solos">
+        <img src="assets/img/logo_solos.png" alt="Departamento de Ciência do Solo" class="logo-solos">
         <img src="assets/img/logo_esalq.png" alt="ESALQ" class="logo-esalq">
         <img src="assets/img/logo_usp.png" alt="USP" class="logo-usp">
         <div class="support">
@@ -932,8 +932,8 @@ html_content <- paste0(
             <h2>Acesse pelo portal, opere no app.</h2>
           </div>
           <p>
-            O GitHub Pages apresenta o sistema e encaminha os usu�rios para o app Shiny,
-            onde ficam consulta de disponibilidade, solicita��o, aprova��o e auditoria.
+            O GitHub Pages apresenta o sistema e encaminha os usuários para o app Shiny,
+            onde ficam consulta de disponibilidade, solicitação, aprovação e auditoria.
           </p>
         </div>
 
@@ -942,31 +942,31 @@ html_content <- paste0(
             <span class="mini-label">Fluxo recomendado</span>
             <h3>Entre pelo portal, opere no Shiny.</h3>
             <p>
-              Usu�rios cadastrados devem acessar o app para consultar os hor�rios dispon�veis,
-              preencher a solicita��o e acompanhar a situa��o da reserva.
+              Usuários cadastrados devem acessar o app para consultar os horários disponíveis,
+              preencher a solicitação e acompanhar a situação da reserva.
             </p>
             <div class="access-list">
               <div>
                 <span>Consulta</span>
-                <strong>Disponibilidade atual e pr�ximas reservas aprovadas.</strong>
+                <strong>Disponibilidade atual e próximas reservas aprovadas.</strong>
               </div>
               <div>
-                <span>Solicita��o</span>
-                <strong>Formul�rio com computador, hor�rio, dura��o e demanda computacional.</strong>
+                <span>Solicitação</span>
+                <strong>Formulário com computador, horário, duração e demanda computacional.</strong>
               </div>
               <div>
-                <span>Administra��o</span>
-                <strong>Aprova��o, rejei��o, cancelamento e registro de decis�es.</strong>
+                <span>Administração</span>
+                <strong>Aprovação, rejeição, cancelamento e registro de decisões.</strong>
               </div>
             </div>
           </article>
 
           <aside class="note-panel">
-            <span class="mini-label">Dados sens�veis</span>
-            <h3>Credenciais e banco ficam fora desta p�gina.</h3>
+            <span class="mini-label">Dados sensíveis</span>
+            <h3>Credenciais e banco ficam fora desta página.</h3>
             <p>
-              A p�gina institucional n�o guarda senha, credenciais ou dados da planilha.
-              O app Shiny usa vari�veis de ambiente e service account para acessar o Google Sheets.
+              A página institucional não guarda senha, credenciais ou dados da planilha.
+              O app Shiny usa variáveis de ambiente e service account para acessar o Google Sheets.
             </p>
           </aside>
         </div>
@@ -981,8 +981,8 @@ html_content <- paste0(
             <h2>', machines_heading, '</h2>
           </div>
           <p>
-            A escolha do computador deve considerar volume de dados, necessidade de mem�ria,
-            paralelismo, uso de GPU e urg�ncia do processamento.
+            A escolha do computador deve considerar volume de dados, necessidade de memória,
+            paralelismo, uso de GPU e urgência do processamento.
           </p>
         </div>
 
@@ -997,10 +997,10 @@ html_content <- paste0(
         <div class="section-heading">
           <div>
             <span class="section-label">Como funciona</span>
-            <h2>Reserva com rastreabilidade e revis�o quando necess�rio.</h2>
+            <h2>Reserva com rastreabilidade e revisão quando necessário.</h2>
           </div>
           <p>
-            O fluxo foi pensado para ser simples para o usu�rio e transparente para a administra��o.
+            O fluxo foi pensado para ser simples para o usuário e transparente para a administração.
           </p>
         </div>
 
@@ -1008,22 +1008,22 @@ html_content <- paste0(
           <div class="step-card">
             <div class="step-number">1</div>
             <strong>Acesse o app</strong>
-            <span>Abra o sistema Shiny pelo bot�o principal desta p�gina.</span>
+            <span>Abra o sistema Shiny pelo botão principal desta página.</span>
           </div>
           <div class="step-card">
             <div class="step-number">2</div>
-            <strong>Preencha a solicita��o</strong>
-            <span>Informe computador, data, hor�rio, dura��o e tipo de processamento.</span>
+            <strong>Preencha a solicitação</strong>
+            <span>Informe computador, data, horário, duração e tipo de processamento.</span>
           </div>
           <div class="step-card">
             <div class="step-number">3</div>
-            <strong>Aguarde a decis�o</strong>
-            <span>Solicita��es sens�veis, longas ou conflitantes podem ir para aprova��o manual.</span>
+            <strong>Aguarde a decisão</strong>
+            <span>Solicitações sensíveis, longas ou conflitantes podem ir para aprovação manual.</span>
           </div>
           <div class="step-card">
             <div class="step-number">4</div>
             <strong>Acompanhe a agenda</strong>
-            <span>Consulte o painel p�blico do app para ver disponibilidade e pr�ximas reservas.</span>
+            <span>Consulte o painel público do app para ver disponibilidade e próximas reservas.</span>
           </div>
         </div>
       </div>
@@ -1033,34 +1033,34 @@ html_content <- paste0(
       <div class="section-inner">
         <div class="section-heading">
           <div>
-            <span class="section-label">Governan�a</span>
-            <h2>Uso compartilhado com crit�rios claros.</h2>
+            <span class="section-label">Governança</span>
+            <h2>Uso compartilhado com critérios claros.</h2>
           </div>
           <p>
-            O sistema ajuda a reduzir conflitos de agenda, registrar decis�es e preservar a infraestrutura computacional do grupo.
+            O sistema ajuda a reduzir conflitos de agenda, registrar decisões e preservar a infraestrutura computacional do grupo.
           </p>
         </div>
 
         <div class="governance-grid">
           <article class="governance-card">
-            <span class="mini-label">Transpar�ncia</span>
-            <h3>Agenda p�blica enxuta.</h3>
+            <span class="mini-label">Transparência</span>
+            <h3>Agenda pública enxuta.</h3>
             <p>
-              O app mostra disponibilidade e pr�ximas reservas sem expor detalhes administrativos ou dados sens�veis.
+              O app mostra disponibilidade e próximas reservas sem expor detalhes administrativos ou dados sensíveis.
             </p>
           </article>
           <article class="governance-card">
             <span class="mini-label">Prioridade</span>
-            <h3>Regras configur�veis.</h3>
+            <h3>Regras configuráveis.</h3>
             <p>
-              Crit�rios como demanda computacional, prazo, dura��o e necessidade do computador mais adequado orientam a decis�o.
+              Critérios como demanda computacional, prazo, duração e necessidade do computador mais adequado orientam a decisão.
             </p>
           </article>
           <article class="governance-card">
             <span class="mini-label">Auditoria</span>
-            <h3>Hist�rico preservado.</h3>
+            <h3>Histórico preservado.</h3>
             <p>
-              Aprova��es, rejei��es e cancelamentos ficam registrados no banco online para consulta administrativa.
+              Aprovações, rejeições e cancelamentos ficam registrados no banco online para consulta administrativa.
             </p>
           </article>
         </div>
@@ -1085,8 +1085,8 @@ html_content <- paste0(
       <div class="footer-main">
         <img src="assets/img/logo_geocis.png" alt="GeoCiS">
         <div>
-          <strong>Grupo de Geotecnologias em Ci�ncia do Solo</strong>
-          <span>Departamento de Ci�ncia do Solo | ESALQ | Universidade de S�o Paulo</span>
+          <strong>Grupo de Geotecnologias em Ciência do Solo</strong>
+          <span>Departamento de Ciência do Solo | ESALQ | Universidade de São Paulo</span>
         </div>
       </div>
       <div class="footer-support">

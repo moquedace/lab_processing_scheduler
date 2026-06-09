@@ -48,7 +48,7 @@ register_public_server_outputs <- function(
       class = "section-card",
       tags$h2("Reservas pendentes"),
       tags$p(
-        "Solicita��es recebidas e ainda n�o aprovadas pela administra��o."
+        "Solicitações recebidas e ainda não aprovadas pela administração."
       ),
       DT::DTOutput("public_pending_table")
     )

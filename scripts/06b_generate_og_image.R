@@ -1,9 +1,9 @@
 # 06b_generate_og_image.R
-# Gera a imagem de preview Open Graph (1200 x 630 px) para a p�gina no GitHub Pages.
+# Gera a imagem de preview Open Graph (1200 x 630 px) para a página no GitHub Pages.
 # Salva em: docs/assets/img/og-preview.png
 #
-# Requer o pacote magick. Se n�o estiver instalado, o script instala automaticamente.
-# No Windows, magick depende da biblioteca ImageMagick � normalmente j� inclu�da no
+# Requer o pacote magick. Se não estiver instalado, o script instala automaticamente.
+# No Windows, magick depende da biblioteca ImageMagick, normalmente já incluída no
 # pacote CRAN. Se houver erro, instale manualmente:
 #   install.packages("magick")
 
@@ -45,8 +45,8 @@ col_url      <- "#475569"
 # -- fundo ---------------------------------------------------------------------
 img <- image_blank(W, H, color = col_bg)
 
-# faixa de destaque vertical � esquerda
-# altura cobre a �rea do t�tulo (y 140 ? 460)
+# faixa de destaque vertical à esquerda
+# altura cobre a área do título (y 140 a 460)
 accent_bar <- image_blank(8L, 320L, color = col_accent)
 img <- image_composite(img, accent_bar, offset = "+64+140")
 
@@ -60,7 +60,7 @@ if (file.exists(logo_path)) {
   warning("Logo nao encontrado: ", logo_path)
 }
 
-# -- t�tulo principal � duas linhas para n�o cortar ----------------------------
+# -- título principal, duas linhas para não cortar -----------------------------
 # Linha 1: "RESERVA DOS COMPUTADORES"
 img <- image_annotate(
   img,
@@ -85,7 +85,7 @@ img <- image_annotate(
   font     = "Arial"
 )
 
-# -- subt�tulo -----------------------------------------------------------------
+# -- subtítulo -----------------------------------------------------------------
 img <- image_annotate(
   img,
   text     = "Sistema de agendamento das estacoes de processamento do GeoCiS",
@@ -96,11 +96,11 @@ img <- image_annotate(
   font     = "Arial"
 )
 
-# -- rodap� --------------------------------------------------------------------
-# Institui��o � esquerda (texto curto para n�o colidir com a URL)
+# -- rodapé --------------------------------------------------------------------
+# Instituição à esquerda (texto curto para não colidir com a URL)
 img <- image_annotate(
   img,
-  text     = "GeoCiS  �  ESALQ  �  USP",
+  text     = "GeoCiS  ·  ESALQ  ·  USP",
   gravity  = "SouthWest",
   location = "+84+48",
   color    = col_footer,
@@ -108,7 +108,7 @@ img <- image_annotate(
   font     = "Arial"
 )
 
-# URL � direita � iniciar� bem ap�s o fim da institui��o
+# URL à direita, iniciará bem após o fim da instituição
 img <- image_annotate(
   img,
   text     = "moquedace.github.io/lab-processing-scheduler",

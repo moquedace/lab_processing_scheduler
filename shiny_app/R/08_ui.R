@@ -16,21 +16,21 @@ ui <- bslib::page_navbar(
   ),
   
   bslib::nav_panel(
-    title = "Painel p�blico",
+    title = "Painel público",
     hero_ui(),
     tags$div(
       class = "section-card",
       tags$h2("Status atual dos computadores"),
       tags$p(
-        "Consulte a disponibilidade atual das esta��es de processamento e acompanhe as pr�ximas reservas aprovadas."
+        "Consulte a disponibilidade atual das estações de processamento e acompanhe as próximas reservas aprovadas."
       ),
       uiOutput("public_status_cards")
     ),
     tags$div(
       class = "section-card",
-      tags$h2("Pr�ximas reservas aprovadas"),
+      tags$h2("Próximas reservas aprovadas"),
       tags$p(
-        "Agenda p�blica com as reservas aprovadas em andamento ou futuras."
+        "Agenda pública com as reservas aprovadas em andamento ou futuras."
       ),
       DT::DTOutput("public_upcoming_table")
     ),
@@ -44,7 +44,7 @@ ui <- bslib::page_navbar(
       class = "section-card",
       tags$h2("Solicitar reserva"),
       tags$p(
-        "Gere a pr�via, confira os dados e envie a solicita��o. A reserva ser� gravada no Google Sheets."
+        "Gere a prévia, confira os dados e envie a solicitação. A reserva será gravada no Google Sheets."
       ),
       tags$div(
         class = "form-layout",
@@ -71,7 +71,7 @@ ui <- bslib::page_navbar(
               width = 6,
               dateInput(
                 inputId = "booking_start_date",
-                label = "Data de in�cio",
+                label = "Data de início",
                 value = Sys.Date(),
                 min = Sys.Date(),
                 language = "pt-BR",
@@ -82,7 +82,7 @@ ui <- bslib::page_navbar(
               width = 6,
               selectInput(
                 inputId = "booking_start_time",
-                label = "Hor�rio de in�cio",
+                label = "Horário de início",
                 choices = time_choices,
                 selected = "08:00"
               )
@@ -90,7 +90,7 @@ ui <- bslib::page_navbar(
           ),
           numericInput(
             inputId = "booking_estimated_hours",
-            label = "Dura��o estimada em horas",
+            label = "Duração estimada em horas",
             value = 4,
             min = 0.5,
             max = 168,
@@ -146,23 +146,23 @@ ui <- bslib::page_navbar(
             weekstart = 0
           ),
           helpText(
-            "Informe apenas se houver uma entrega, reuni�o, relat�rio, qualifica��o, submiss�o ou outro prazo formal relacionado ao processamento."
+            "Informe apenas se houver uma entrega, reunião, relatório, qualificação, submissão ou outro prazo formal relacionado ao processamento."
           ),
           textAreaInput(
             inputId = "booking_justification",
-            label = "Justificativa da solicita��o",
+            label = "Justificativa da solicitação",
             placeholder = "Descreva brevemente o objetivo do processamento, o motivo da escolha do computador e, se houver, o prazo relacionado.",
             rows = 4
           ),
           textAreaInput(
             inputId = "booking_public_notes",
-            label = "Observa��o p�blica, opcional",
-            placeholder = "Exemplo: processamento raster, modelagem espectral, predi��o em larga escala. Evite informa��es sens�veis.",
+            label = "Observação pública, opcional",
+            placeholder = "Exemplo: processamento raster, modelagem espectral, predição em larga escala. Evite informações sensíveis.",
             rows = 2
           ),
           actionButton(
             inputId = "generate_booking_preview",
-            label = "Gerar pr�via da reserva",
+            label = "Gerar prévia da reserva",
             class = "btn-primary"
           )
         ),
@@ -178,18 +178,18 @@ ui <- bslib::page_navbar(
     tags$div(
       class = "section-card",
       tags$h2("Reservas registradas"),
-      tags$p("Tabela com as solicita��es gravadas no Google Sheets."),
+      tags$p("Tabela com as solicitações gravadas no Google Sheets."),
       DT::DTOutput("reservations_table")
     )
   ),
   
   bslib::nav_panel(
-    title = "Administra��o",
+    title = "Administração",
     tags$div(
       class = "section-card",
-      tags$h2("Administra��o"),
+      tags$h2("Administração"),
       tags$p(
-        "�rea para aprovar, rejeitar ou cancelar reservas. O acesso exige senha administrativa."
+        "Área para aprovar, rejeitar ou cancelar reservas. O acesso exige senha administrativa."
       ),
       uiOutput("admin_panel"),
       uiOutput("admin_sub_tabs")
