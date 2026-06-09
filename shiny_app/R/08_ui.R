@@ -4,7 +4,14 @@ ui <- bslib::page_navbar(
   id = "main_nav",
   
   header = tagList(
-    tags$head(tags$style(HTML(app_css))),
+    tags$head(
+      tags$link(
+        rel  = "shortcut icon",
+        type = "image/png",
+        href = "site-assets/logo_geocis.png"
+      ),
+      tags$style(HTML(app_css))
+    ),
     institutional_header_ui()
   ),
   
