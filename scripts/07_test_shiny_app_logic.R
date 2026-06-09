@@ -937,12 +937,15 @@ record_test("finish usage row is no-op when no open usage row exists", {
     notes = character()
   )
 
-  result <- test_env$finish_usage_row(
-    usage_log_tbl = empty_usage,
-    reservation_id_value = "res_missing",
-    actual_end_time = lubridate::ymd_hms("2026-06-15 11:00:00", tz = timezone_value),
-    finish_reason = "normal",
-    timezone_value = timezone_value
+  # suppressWarnings: este caminho emite warning por design (linha aberta não encontrada).
+  result <- suppressWarnings(
+    test_env$finish_usage_row(
+      usage_log_tbl = empty_usage,
+      reservation_id_value = "res_missing",
+      actual_end_time = lubridate::ymd_hms("2026-06-15 11:00:00", tz = timezone_value),
+      finish_reason = "normal",
+      timezone_value = timezone_value
+    )
   )
 
   expect_equal(nrow(result), 0L, "Empty table should be returned unchanged.")
