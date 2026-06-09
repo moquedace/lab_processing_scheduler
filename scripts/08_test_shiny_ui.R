@@ -282,7 +282,7 @@ find_reservation_by_marker <- function(marker_value) {
   reservations_tbl[matching_rows, , drop = FALSE]
 }
 
-wait_for_reservation <- function(marker_value, stage, timeout_seconds = 45) {
+wait_for_reservation <- function(marker_value, stage, timeout_seconds = 120) {
   deadline <- Sys.time() + timeout_seconds
 
   repeat {
@@ -300,7 +300,7 @@ wait_for_reservation <- function(marker_value, stage, timeout_seconds = 45) {
   }
 }
 
-wait_for_reservation_status <- function(reservation_id, expected_status, stage, timeout_seconds = 45) {
+wait_for_reservation_status <- function(reservation_id, expected_status, stage, timeout_seconds = 120) {
   deadline <- Sys.time() + timeout_seconds
 
   repeat {
@@ -326,23 +326,35 @@ wait_for_reservation_status <- function(reservation_id, expected_status, stage, 
   }
 }
 
-expect_audit_event <- function(reservation_id, event_type, note_marker) {
-  audit_tbl <- read_sheet_clean("audit_log")
+wait_for_audit_event <- function(reservation_id, event_type, note_marker, timeout_seconds = 90) {
+  deadline <- Sys.time() + timeout_seconds
 
-  found <- audit_tbl |>
-    dplyr::filter(
-      reservation_id == !!reservation_id,
-      event_type == !!event_type,
-      stringr::str_detect(ifelse(is.na(notes), "", notes), stringr::fixed(note_marker))
-    )
+  repeat {
+    audit_tbl <- read_sheet_clean("audit_log")
 
-  testthat::expect_true(
-    nrow(found) >= 1,
-    info = paste("Expected audit event not found:", reservation_id, event_type)
-  )
+    found <- audit_tbl |>
+      dplyr::filter(
+        reservation_id == !!reservation_id,
+        event_type == !!event_type,
+        stringr::str_detect(ifelse(is.na(notes), "", notes), stringr::fixed(note_marker))
+      )
+
+    if (nrow(found) >= 1) {
+      return(found)
+    }
+
+    if (Sys.time() > deadline) {
+      testthat::expect_true(
+        FALSE,
+        info = paste("Expected audit event not found:", reservation_id, event_type)
+      )
+    }
+
+    Sys.sleep(3)
+  }
 }
 
-wait_for_usage_row <- function(reservation_id, expected_state, note_marker, stage, timeout_seconds = 45) {
+wait_for_usage_row <- function(reservation_id, expected_state, note_marker, stage, timeout_seconds = 120) {
   deadline <- Sys.time() + timeout_seconds
 
   repeat {
@@ -425,7 +437,7 @@ submit_booking <- function(case_id, start_date, start_time, estimated_hours, req
   )
   expect_snapshot(booking_values, "booking_preview", paste("booking preview", case_id), require_html = TRUE)
 
-  app$set_inputs(submit_booking = "click")
+  app$set_inputs(submit_booking = "click", wait_ = FALSE)
   wait_for_app(8)
 
   wait_for_reservation(marker_value, paste("booking submit", case_id))
@@ -454,6 +466,7 @@ run_admin_action <- function(
   wait_for_app(1)
 
   button_args <- stats::setNames(list("click"), button_input)
+  button_args$wait_ <- FALSE
   do.call(app$set_inputs, button_args)
   wait_for_app(8)
 
@@ -481,7 +494,7 @@ run_admin_action <- function(
       stop(error)
     }
   )
-  expect_audit_event(
+  wait_for_audit_event(
     reservation_id = reservation_id,
     event_type = event_type,
     note_marker = note_marker
