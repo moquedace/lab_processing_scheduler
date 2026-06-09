@@ -62,13 +62,14 @@ lab-processing-scheduler/
 |   |-- 04_prepare_shinyapps_files.R
 |   |-- 05_deploy_shinyapps.R
 |   |-- 06_update_github_page.R
+|   |-- 06b_generate_og_image.R
 |   |-- 07_test_shiny_app_logic.R
-|   |-- 08_generate_og_image.R
 |   |-- 08_test_shiny_ui.R
 |   |-- 09_cleanup_shiny_test_rows.R
 |   |-- 10_run_ui_test_with_first_user.R
 |   |-- 11_migrate_usage_log_schema.R
-|   `-- 12_run_regression_suite.R
+|   |-- 12_run_regression_suite.R
+|   `-- 13_reset_operational_sheets.R
 |-- shiny_app/
 |   |-- app.R                    # servidor principal
 |   |-- R/                       # módulos carregados pelo app.R
@@ -114,13 +115,14 @@ lab-processing-scheduler/
 | `04_prepare_shinyapps_files.R` | Preparar arquivos para o bundle de deploy |
 | `05_deploy_shinyapps.R` | Publicar o app no shinyapps.io |
 | `06_update_github_page.R` | Regenerar `docs/index.html` a partir do template R |
-| `07_test_shiny_app_logic.R` | Suite de testes de lógica pura (21 casos, sem credenciais) |
-| `08_generate_og_image.R` | Gerar imagem de preview Open Graph (1200×630 px) |
+| `06b_generate_og_image.R` | Gerar imagem de preview Open Graph (1200×630 px) |
+| `07_test_shiny_app_logic.R` | Suite de testes de lógica pura (sem credenciais) |
 | `08_test_shiny_ui.R` | Testes de jornada UI/admin com `shinytest2`, incluindo início/fim de uso (requer credenciais) |
 | `09_cleanup_shiny_test_rows.R` | Remover linhas de teste do Google Sheets |
 | `10_run_ui_test_with_first_user.R` | Executar teste UI completo com o primeiro usuário ativo |
-| `11_migrate_usage_log_schema.R` | Migrar `usage_log` do schema antigo para o schema de início/fim de uso |
+| `11_migrate_usage_log_schema.R` | Migrar `usage_log` do schema antigo para o novo (com `started_at`, `finished_at`, etc.) |
 | `12_run_regression_suite.R` | Rodar validação do banco, testes de lógica e jornada UI em sequência |
+| `13_reset_operational_sheets.R` | Limpar `reservations`, `usage_log` e `audit_log` (exige confirmação explícita via env var) |
 
 ---
 
@@ -168,7 +170,7 @@ source("scripts/06_update_github_page.R")
 # → commitar e fazer push de docs/index.html
 
 # Regenerar imagem de preview (og:image)
-source("scripts/08_generate_og_image.R")
+source("scripts/06b_generate_og_image.R")
 # → commitar e fazer push de docs/assets/img/og-preview.png
 ```
 
@@ -241,7 +243,7 @@ source("scripts/12_run_regression_suite.R")
 source("scripts/04_prepare_shinyapps_files.R")
 source("scripts/05_deploy_shinyapps.R")
 source("scripts/06_update_github_page.R")
-source("scripts/08_generate_og_image.R")
+source("scripts/06b_generate_og_image.R")
 ```
 
 Depois disso, revisar `docs/index.html`, `docs/assets/img/og-preview.png` e fazer
