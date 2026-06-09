@@ -929,7 +929,7 @@ html_content <- paste0(
         <div class="section-heading">
           <div>
             <span class="section-label">Acesso ao sistema</span>
-            <h2>Uma porta clara para a operação diária.</h2>
+            <h2>Acesse pelo portal, opere no app.</h2>
           </div>
           <p>
             O GitHub Pages apresenta o sistema e encaminha os usuários para o app Shiny,
