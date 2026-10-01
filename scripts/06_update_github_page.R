@@ -11,7 +11,7 @@ docs_dir <- file.path(project_root, "docs")
 img_dir <- file.path(docs_dir, "assets", "img")
 index_file <- file.path(docs_dir, "index.html")
 
-shiny_app_url <- "https://moquedace.shinyapps.io/lab-processing-scheduler/"
+shiny_app_url <- "https://moquedace.shinyapps.io/lab_processing_scheduler/"
 
 required_logos <- c(
   "logo_geocis.png",
@@ -194,10 +194,10 @@ html_content <- paste0(
 
   <!-- Open Graph / redes sociais -->
   <meta property="og:type"         content="website">
-  <meta property="og:url"          content="https://moquedace.github.io/lab-processing-scheduler/">
+  <meta property="og:url"          content="https://moquedace.github.io/lab_processing_scheduler/">
   <meta property="og:title"        content="Reserva dos Computadores de Processamento | GeoCiS">
   <meta property="og:description"  content="Portal institucional para reserva das estações de processamento do Grupo de Geotecnologias em Ciência do Solo, ESALQ/USP.">
-  <meta property="og:image"        content="https://moquedace.github.io/lab-processing-scheduler/assets/img/og-preview.png">
+  <meta property="og:image"        content="https://moquedace.github.io/lab_processing_scheduler/assets/img/og-preview.png">
   <meta property="og:image:width"  content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:locale"       content="pt_BR">
@@ -207,7 +207,7 @@ html_content <- paste0(
   <meta name="twitter:card"        content="summary_large_image">
   <meta name="twitter:title"       content="Reserva dos Computadores de Processamento | GeoCiS">
   <meta name="twitter:description" content="Portal institucional para reserva das estações de processamento do Grupo de Geotecnologias em Ciência do Solo, ESALQ/USP.">
-  <meta name="twitter:image"       content="https://moquedace.github.io/lab-processing-scheduler/assets/img/og-preview.png">
+  <meta name="twitter:image"       content="https://moquedace.github.io/lab_processing_scheduler/assets/img/og-preview.png">
 
   <style>
     :root {

@@ -13,7 +13,7 @@ project_root <- if (basename(getwd()) == "scripts") {
   normalizePath(getwd(), winslash = "/", mustWork = TRUE)
 }
 
-if (!grepl("lab-processing-scheduler$", project_root)) {
+if (!grepl("lab_processing_scheduler$", project_root)) {
   stop(
     "The working directory does not appear to be the project root. ",
     "In RStudio, go to: Session > Set Working Directory > To Project Directory"

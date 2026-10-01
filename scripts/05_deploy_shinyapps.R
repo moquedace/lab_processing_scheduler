@@ -134,7 +134,7 @@ app_files <- c(
 
 rsconnect::deployApp(
   appDir = app_dir,
-  appName = "lab-processing-scheduler",
+  appName = "lab_processing_scheduler",
   appTitle = "Reserva dos Computadores de Processamento",
   appFiles = app_files,
   forceUpdate = TRUE

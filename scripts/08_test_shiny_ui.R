@@ -120,7 +120,7 @@ message("Chromote startup timeout: ", chromote_timeout, "s")
 
 app <- shinytest2::AppDriver$new(
   app_dir = app_dir,
-  name = paste0("lab-processing-scheduler-ui-", test_marker),
+  name = paste0("lab_processing_scheduler-ui-", test_marker),
   seed = 123,
   height = 900,
   width = 1360,

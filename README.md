@@ -1,7 +1,7 @@
 # Reserva dos Computadores de Processamento
 
-[![Página institucional](https://img.shields.io/badge/GitHub%20Pages-ao%20vivo-0f7a58?logo=github&logoColor=white)](https://moquedace.github.io/lab-processing-scheduler/)
-[![App Shiny](https://img.shields.io/badge/shinyapps.io-ao%20vivo-174c78?logo=rstudio&logoColor=white)](https://moquedace.shinyapps.io/lab-processing-scheduler/)
+[![Página institucional](https://img.shields.io/badge/GitHub%20Pages-ao%20vivo-0f7a58?logo=github&logoColor=white)](https://moquedace.github.io/lab_processing_scheduler/)
+[![App Shiny](https://img.shields.io/badge/shinyapps.io-ao%20vivo-174c78?logo=rstudio&logoColor=white)](https://moquedace.shinyapps.io/lab_processing_scheduler/)
 [![Linguagem](https://img.shields.io/badge/R-%3E%3D%204.0-276DC3?logo=r&logoColor=white)](https://www.r-project.org/)
 
 Sistema institucional de reserva e monitoramento das estações de processamento do **GeoCiS — Grupo de Geotecnologias em Ciência do Solo**, Departamento de Ciência do Solo, ESALQ/USP.
@@ -49,7 +49,7 @@ Google Sheets
 ## Estrutura do repositório
 
 ```
-lab-processing-scheduler/
+lab_processing_scheduler/
 |-- docs/                        # GitHub Pages (gerado por scripts/06)
 |   |-- index.html
 |   `-- assets/

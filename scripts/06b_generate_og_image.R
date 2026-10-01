@@ -111,7 +111,7 @@ img <- image_annotate(
 # URL à direita, iniciará bem após o fim da instituição
 img <- image_annotate(
   img,
-  text     = "moquedace.github.io/lab-processing-scheduler",
+  text     = "moquedace.github.io/lab_processing_scheduler",
   gravity  = "SouthEast",
   location = "+64+48",
   color    = col_url,
